@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Detail - PN-App System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 15px;
+            width: 2px;
+            height: calc(100% + 10px);
+            background: #dee2e6;
+        }
+        .timeline-item:last-child::after {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('partials/sidebar', { user, activePage: 'patient-detail' }) %>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Patient Detail</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-sm btn-primary me-2" onclick="showCreatePNModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Create PN Case
+                        </button>
+                        <button type="button" class="btn btn-sm btn-success me-2" onclick="showReservationModal(null, <%= patientId %>)">
+                            <i class="bi bi-calendar-check me-1"></i>Reserve Appointment
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="window.close()">
+                            <i class="bi bi-x-circle me-1"></i>Close
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Patient Information -->
+                <div class="info-card" id="patientInfo">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4><i class="bi bi-person-badge me-2"></i>Patient Information</h4>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editPatient()">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="info-label">HN</div>
+                            <div id="hn">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-label">PT Number</div>
+                            <div id="ptNumber">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-label">Name</div>
+                            <div id="fullName">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-label">Date of Birth</div>
+                            <div id="dob">-</div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <div class="info-label">Gender</div>
+                            <div id="gender">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-label">Phone</div>
+                            <div id="phone">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-label">Email</div>
+                            <div id="email">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-label">Clinic</div>
+                            <div id="clinic">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Information -->
+                <div class="info-card">
+                    <h4><i class="bi bi-heart-pulse me-2"></i>Medical Information</h4>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="info-label">Primary Diagnosis</div>
+                            <div id="diagnosis">-</div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="info-label">Rehabilitation Goals</div>
+                            <div id="rehabGoals">-</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Body Area</div>
+                            <div id="bodyArea">-</div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="info-label">Precautions</div>
+                            <div id="precautions">-</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-label">Contraindications</div>
+                            <div id="contraindications">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PN Cases Tab -->
+                <ul class="nav nav-tabs" id="patientTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="cases-tab" data-bs-toggle="tab" data-bs-target="#cases" type="button">
+                            <i class="bi bi-folder2-open me-1"></i>PN Cases
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button">
+                            <i class="bi bi-clock-history me-1"></i>Timeline
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3" id="patientTabContent">
+                    <!-- PN Cases Tab -->
+                    <div class="tab-pane fade show active" id="cases" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>PN Code</th>
+                                        <th>Purpose</th>
+                                        <th>Target Clinic</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="casesTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Tab -->
+                    <div class="tab-pane fade" id="timeline" role="tabpanel">
+                        <div id="timelineContent">
+                            <p class="text-center text-muted">Loading timeline...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Create PN Case Modal -->
+    <div class="modal fade" id="createPNModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create PN Case</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pnForm">
+                        <div class="mb-3">
+                            <label for="pnDiagnosis" class="form-label">Diagnosis</label>
+                            <textarea class="form-control" id="pnDiagnosis" rows="2" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pnPurpose" class="form-label">Purpose</label>
+                            <textarea class="form-control" id="pnPurpose" rows="2" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="targetClinic" class="form-label">Target Clinic</label>
+                            <select class="form-select" id="targetClinic" required>
+                                <option value="">Select Clinic</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="pnNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="pnNotes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="createPNCase()">Create Case</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Bill Creation Modal (Shown after PN creation) -->
+    <div class="modal fade" id="createBillForPNModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+                    <h5 class="modal-title"><i class="bi bi-receipt-cutoff me-2"></i>Create Bill for PN Case</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- PN Case Information (Auto-filled from just created PN) -->
+                    <div class="card mb-4" style="border-left: 4px solid #28a745; background: #f8fff9;">
+                        <div class="card-body">
+                            <h6 class="text-success mb-3"><i class="bi bi-link-45deg me-2"></i>PN Case Information</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>PN Code:</strong> <span id="bill-pn-code">-</span></p>
+                                    <p class="mb-2"><strong>Patient:</strong> <span id="bill-patient-name">-</span></p>
+                                    <p class="mb-2"><strong>HN:</strong> <span id="bill-patient-hn">-</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2"><strong>Diagnosis:</strong> <span id="bill-pn-diagnosis">-</span></p>
+                                    <p class="mb-2"><strong>Purpose:</strong> <span id="bill-pn-purpose">-</span></p>
+                                    <p class="mb-2"><strong>Clinic:</strong> <span id="bill-clinic-name">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="bill-pn-case-id">
+                    <input type="hidden" id="bill-patient-id">
+                    <input type="hidden" id="bill-clinic-id">
+
+                    <!-- Service Selection -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="bi bi-cart-plus me-2"></i>Add Services</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-5">
+                                    <label class="form-label">Service</label>
+                                    <select id="bill-service-select" class="form-select">
+                                        <option value="">Select Service</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" id="bill-service-quantity" class="form-control" value="1" min="1">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Discount (฿)</label>
+                                    <input type="number" id="bill-service-discount" class="form-control" value="0" min="0">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-success w-100" onclick="addBillService()">
+                                        <i class="bi bi-plus-circle me-1"></i>Add Service
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Services Table -->
+                            <div id="bill-services-table">
+                                <p class="text-muted text-center py-3">No services added yet</p>
+                            </div>
+
+                            <!-- Totals -->
+                            <div class="row mt-4">
+                                <div class="col-md-8"></div>
+                                <div class="col-md-4">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Subtotal:</strong></td>
+                                            <td class="text-end"><span id="bill-subtotal">฿0.00</span></td>
+                                        </tr>
+                                        <tr class="table-success">
+                                            <td><strong>TOTAL:</strong></td>
+                                            <td class="text-end"><strong><span id="bill-total">฿0.00</span></strong></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Optional Fields -->
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Payment Method (Optional)</label>
+                                    <select id="bill-payment-method" class="form-select">
+                                        <option value="">Select method</option>
+                                        <option value="CASH">Cash</option>
+                                        <option value="CREDIT_CARD">Credit Card</option>
+                                        <option value="TRANSFER">Bank Transfer</option>
+                                        <option value="QR_CODE">QR Code</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Notes (Optional)</label>
+                                    <input type="text" id="bill-notes-input" class="form-control" placeholder="Additional notes...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="saveBillForPN()">
+                        <i class="bi bi-check-circle me-1"></i>Create Bill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Reservation Modal -->
+    <div class="modal fade" id="reserveAppointmentModal" tabindex="-1" aria-labelledby="reserveAppointmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="modal-title" id="reserveAppointmentModalLabel">
+                        <i class="bi bi-calendar-check me-2"></i>Reserve Appointment
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info mb-2">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <span id="reservation-patient-info"></span>
+                    </div>
+
+                    <div id="reservation-pn-info" class="alert alert-success mb-3" style="display: none;">
+                        <i class="bi bi-file-earmark-medical me-2"></i>
+                        <strong>Reserving for PN Case:</strong> <span id="reservation-pn-code-display" class="badge bg-dark ms-2"></span>
+                    </div>
+
+                    <input type="hidden" id="reservation-pn-case-id">
+                    <input type="hidden" id="reservation-patient-id">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Clinic <span class="text-danger">*</span></label>
+                            <select id="reservation-clinic-id" class="form-select" onchange="loadReservationPTs(); clearTimeSlots();">
+                                <option value="">Select Clinic...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">PT (Physiotherapist) <span class="text-danger">*</span></label>
+                            <select id="reservation-pt-id" class="form-select" onchange="clearTimeSlots();">
+                                <option value="">Select PT...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Appointment Date <span class="text-danger">*</span></label>
+                            <input type="date" id="reservation-date" class="form-control" onchange="loadAvailableTimeSlots()">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Available Time Slots <span class="text-danger">*</span></label>
+                            <small class="text-muted d-block mb-2">
+                                <i class="bi bi-info-circle me-1"></i>You can select multiple consecutive time slots (e.g., 08:30-09:00 and 09:00-09:30). Gaps are not allowed.
+                            </small>
+                            <div id="time-slots-container" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                <p class="text-muted text-center">Please select clinic, PT, and date to see available time slots</p>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Reason (Optional)</label>
+                            <textarea id="reservation-reason" class="form-control" rows="2" placeholder="Reason for appointment..."></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Notes (Optional)</label>
+                            <textarea id="reservation-notes" class="form-control" rows="2" placeholder="Additional notes..."></textarea>
+                        </div>
+                    </div>
+
+                    <div id="reservation-alert" class="alert mt-3" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmAppointmentReservation()">
+                        <i class="bi bi-calendar-check me-1"></i>Reserve Appointment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const patientId = <%= patientId %>;
+        let patientData = null;
+
+        async function loadPatientData() {
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch(`/api/patients/${patientId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    patientData = await response.json();
+                    displayPatientInfo();
+                    loadPNCases();
+                    loadTimeline();
+                }
+            } catch (error) {
+                console.error('Error loading patient:', error);
+            }
+        }
+
+        function displayPatientInfo() {
+            document.getElementById('hn').textContent = patientData.hn || '-';
+            document.getElementById('ptNumber').textContent = patientData.pt_number || '-';
+            document.getElementById('fullName').textContent = `${patientData.first_name} ${patientData.last_name}`;
+            document.getElementById('dob').textContent = formatDate(patientData.dob);
+            document.getElementById('gender').textContent = patientData.gender || '-';
+            document.getElementById('phone').textContent = patientData.phone || '-';
+            document.getElementById('email').textContent = patientData.email || '-';
+            document.getElementById('clinic').textContent = patientData.clinic_name || '-';
+            document.getElementById('diagnosis').textContent = patientData.diagnosis || '-';
+            document.getElementById('rehabGoals').textContent = patientData.rehab_goal || '-';
+            document.getElementById('bodyArea').textContent = patientData.body_area || '-';
+            document.getElementById('precautions').textContent = patientData.precaution || '-';
+            document.getElementById('contraindications').textContent = patientData.contraindication || '-';
+            
+            // Pre-fill PN form with patient diagnosis
+            document.getElementById('pnDiagnosis').value = patientData.diagnosis || '';
+        }
+
+        async function loadPNCases() {
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch(`/api/pn?search=${patientData.hn}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayCases(data.cases.filter(c => c.patient_id == patientId));
+                }
+            } catch (error) {
+                console.error('Error loading cases:', error);
+            }
+        }
+
+        function displayCases(cases) {
+            const tbody = document.getElementById('casesTableBody');
+            
+            if (cases.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No PN cases found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = cases.map(pnCase => `
+                <tr>
+                    <td><span class="badge bg-secondary">${pnCase.pn_code}</span></td>
+                    <td>${truncateText(pnCase.purpose, 50)}</td>
+                    <td>${pnCase.target_clinic_name}</td>
+                    <td>${getStatusBadge(pnCase.status)}</td>
+                    <td>${formatDate(pnCase.created_at)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="viewCase(${pnCase.id})">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadTimeline() {
+            // Implementation for loading patient timeline
+            document.getElementById('timelineContent').innerHTML = `
+                <div class="timeline-item">
+                    <strong>Patient Registered</strong><br>
+                    <small class="text-muted">${formatDateTime(patientData.created_at)}</small>
+                </div>
+            `;
+        }
+
+        async function loadClinics() {
+            try {
+                const token = getCookie('authToken');
+                const user = JSON.parse(localStorage.getItem('user'));
+
+                const response = await fetch('/api/clinics', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const clinics = await response.json();
+                    const select = document.getElementById('targetClinic');
+
+                    // For CLINIC role, lock target clinic to their own clinic
+                    if (user.role === 'CLINIC') {
+                        const userClinic = clinics.find(c => c.id == user.clinic_id);
+                        if (userClinic) {
+                            const option = document.createElement('option');
+                            option.value = userClinic.id;
+                            option.textContent = userClinic.name + ' (Your Clinic)';
+                            option.selected = true;
+                            select.appendChild(option);
+                            select.disabled = true; // Lock the selection
+                        }
+                    } else {
+                        // For ADMIN and PT, show all clinics
+                        clinics.forEach(clinic => {
+                            const option = document.createElement('option');
+                            option.value = clinic.id;
+                            option.textContent = clinic.name;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading clinics:', error);
+            }
+        }
+
+        function showCreatePNModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createPNModal'));
+            modal.show();
+        }
+
+        async function createPNCase() {
+            const formData = {
+                patient_id: patientId,
+                diagnosis: document.getElementById('pnDiagnosis').value,
+                purpose: document.getElementById('pnPurpose').value,
+                target_clinic_id: document.getElementById('targetClinic').value,
+                notes: document.getElementById('pnNotes').value
+            };
+            
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch('/api/pn', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    bootstrap.Modal.getInstance(document.getElementById('createPNModal')).hide();
+                    loadPNCases();
+
+                    // Ask if user wants to create a bill for this PN
+                    const createBill = confirm(
+                        `PN Case created successfully!\nPN Code: ${result.pn_code}\n\n` +
+                        `Do you want to create a bill for this PN now?\n\n` +
+                        `เคส PN สร้างสำเร็จแล้ว!\n\n` +
+                        `คุณต้องการสร้างใบเสร็จสำหรับเคส PN นี้หรือไม่?`
+                    );
+
+                    if (createBill) {
+                        // Combine API result with form data for complete PN information
+                        const pnData = {
+                            ...result,
+                            diagnosis: formData.diagnosis,
+                            purpose: formData.purpose,
+                            patient_id: formData.patient_id
+                        };
+                        // Show bill modal on same page (don't redirect)
+                        showBillModalForPN(pnData);
+                    } else {
+                        // If user doesn't want to create a bill, ask if they want to reserve an appointment
+                        const reserveAppointment = confirm(
+                            `PN Case created successfully!\nPN Code: ${result.pn_code}\n\n` +
+                            `Would you like to reserve an appointment for this patient now?\n\n` +
+                            `เคส PN สร้างสำเร็จแล้ว!\n\n` +
+                            `คุณต้องการจองนัดหมายสำหรับคนไข้ท่านนี้หรือไม่?`
+                        );
+
+                        if (reserveAppointment) {
+                            // Show reservation modal with the newly created PN case
+                            showReservationModal(result.id, formData.patient_id);
+                        }
+                    }
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + error.error);
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        }
+
+        function viewCase(caseId) {
+            window.location.href = `/pn/${caseId}`;
+        }
+
+        function editPatient() {
+            // Implementation for edit patient
+            alert('Edit patient functionality to be implemented');
+        }
+
+        function getStatusBadge(status) {
+            const colors = {
+                'PENDING': 'warning',
+                'ACCEPTED': 'info',
+                'IN_PROGRESS': 'primary',
+                'COMPLETED': 'success',
+                'CANCELLED': 'danger'
+            };
+            return `<span class="badge bg-${colors[status] || 'secondary'}">${status}</span>`;
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-GB');
+        }
+
+        function formatDateTime(date) {
+            return new Date(date).toLocaleString('en-GB');
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // ========================================
+        // NEW: Bill Creation for PN Cases
+        // ========================================
+
+        let billServices = [];
+        let currentPNData = null;
+
+        async function showBillModalForPN(pnData) {
+            // Reset
+            billServices = [];
+            currentPNData = pnData;
+
+            console.log('=== showBillModalForPN ===');
+            console.log('pnData:', pnData);
+            console.log('pnData.id:', pnData.id);
+            console.log('pnData.pn_id:', pnData.pn_id);
+
+            // Get clinic ID from patient data (patient's current clinic is the source clinic)
+            const sourceClinicId = patientData?.clinic_id;
+
+            if (!sourceClinicId) {
+                alert('Error: Patient clinic not found. Cannot create bill.');
+                return;
+            }
+
+            // Fill PN information display
+            document.getElementById('bill-pn-code').textContent = pnData.pn_code || 'N/A';
+            document.getElementById('bill-patient-name').textContent = patientData ? `${patientData.first_name} ${patientData.last_name}` : 'N/A';
+            document.getElementById('bill-patient-hn').textContent = patientData?.hn || 'N/A';
+            document.getElementById('bill-pn-diagnosis').textContent = pnData.diagnosis || 'N/A';
+            document.getElementById('bill-pn-purpose').textContent = pnData.purpose || 'N/A';
+            document.getElementById('bill-clinic-name').textContent = patientData?.clinic_name || 'N/A';
+
+            // Fill hidden fields - use pn_id from response and patientId from page
+            const pnCaseIdValue = pnData.pn_id || pnData.id || '';
+            console.log('Setting bill-pn-case-id to:', pnCaseIdValue);
+            document.getElementById('bill-pn-case-id').value = pnCaseIdValue;
+            document.getElementById('bill-patient-id').value = patientId;
+            document.getElementById('bill-clinic-id').value = sourceClinicId;
+
+            // Load services for this clinic
+            await loadServicesForBill(sourceClinicId);
+
+            // Reset form
+            document.getElementById('bill-service-quantity').value = '1';
+            document.getElementById('bill-service-discount').value = '0';
+            document.getElementById('bill-payment-method').value = '';
+            document.getElementById('bill-notes-input').value = '';
+
+            // Reset display
+            renderBillServices();
+            updateBillTotals();
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('createBillForPNModal'));
+            modal.show();
+        }
+
+        async function loadServicesForBill(clinicId) {
+            try {
+                const token = getCookie('authToken');
+                const params = new URLSearchParams({ clinic_id: clinicId });
+                const response = await fetch(`/api/bills/services?${params}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const services = await response.json();
+                    const select = document.getElementById('bill-service-select');
+                    select.innerHTML = '<option value="">Select Service</option>';
+
+                    services.forEach(service => {
+                        const option = document.createElement('option');
+                        option.value = service.id;
+                        const displayPrice = service.price || service.default_price;
+                        option.textContent = `${service.service_code} - ${service.service_name} (฿${displayPrice})`;
+                        option.dataset.price = displayPrice;
+                        option.dataset.name = service.service_name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading services:', error);
+            }
+        }
+
+        function addBillService() {
+            const select = document.getElementById('bill-service-select');
+            const quantity = parseInt(document.getElementById('bill-service-quantity').value) || 1;
+            const discount = parseFloat(document.getElementById('bill-service-discount').value) || 0;
+
+            const serviceId = select.value;
+            const serviceName = select.options[select.selectedIndex]?.dataset.name || '';
+            const unitPrice = parseFloat(select.options[select.selectedIndex]?.dataset.price || 0);
+
+            if (!serviceId) {
+                alert('Please select a service');
+                return;
+            }
+
+            const service = {
+                service_id: parseInt(serviceId),
+                service_name: serviceName,
+                quantity: quantity,
+                unit_price: unitPrice,
+                discount: discount,
+                total_price: (quantity * unitPrice) - discount,
+                notes: null
+            };
+
+            billServices.push(service);
+            renderBillServices();
+            updateBillTotals();
+
+            // Reset inputs
+            select.value = '';
+            document.getElementById('bill-service-quantity').value = '1';
+            document.getElementById('bill-service-discount').value = '0';
+        }
+
+        function renderBillServices() {
+            const container = document.getElementById('bill-services-table');
+
+            if (billServices.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center py-3">No services added yet</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Service</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Discount</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center" width="80">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${billServices.map((service, index) => `
+                            <tr>
+                                <td>${service.service_name}</td>
+                                <td class="text-center">${service.quantity}</td>
+                                <td class="text-end">฿${service.unit_price.toFixed(2)}</td>
+                                <td class="text-end">฿${service.discount.toFixed(2)}</td>
+                                <td class="text-end"><strong>฿${service.total_price.toFixed(2)}</strong></td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="removeBillService(${index})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function removeBillService(index) {
+            billServices.splice(index, 1);
+            renderBillServices();
+            updateBillTotals();
+        }
+
+        function updateBillTotals() {
+            const subtotal = billServices.reduce((sum, service) => sum + service.total_price, 0);
+            document.getElementById('bill-subtotal').textContent = `฿${subtotal.toFixed(2)}`;
+            document.getElementById('bill-total').textContent = `฿${subtotal.toFixed(2)}`;
+        }
+
+        async function saveBillForPN() {
+            if (billServices.length === 0) {
+                alert('Please add at least one service');
+                return;
+            }
+
+            const pnCaseIdValue = document.getElementById('bill-pn-case-id').value;
+            console.log('=== saveBillForPN ===');
+            console.log('bill-pn-case-id value:', pnCaseIdValue);
+            const pnCaseId = parseInt(pnCaseIdValue);
+            console.log('pnCaseId after parseInt:', pnCaseId);
+            const patientId = parseInt(document.getElementById('bill-patient-id').value);
+            const clinicId = parseInt(document.getElementById('bill-clinic-id').value);
+            const paymentMethod = document.getElementById('bill-payment-method').value;
+            const notes = document.getElementById('bill-notes-input').value;
+
+            const billData = {
+                patient_id: patientId,
+                walk_in_name: null,
+                walk_in_phone: null,
+                clinic_id: clinicId,
+                bill_date: new Date().toISOString().split('T')[0],
+                items: billServices,
+                discount: 0,
+                tax: 0,
+                bill_notes: notes || null,
+                payment_method: paymentMethod || null,
+                payment_notes: null,
+                appointment_id: null,
+                pn_case_id: pnCaseId
+            };
+
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch('/api/bills', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(billData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+
+                    // Close modal
+                    const modalEl = document.getElementById('createBillForPNModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    // Reload PN cases to show bill connection
+                    loadPNCases();
+
+                    // Ask if user wants to reserve an appointment
+                    const reserveAppointment = confirm(
+                        `Bill ${result.bill_code} created successfully and linked to PN ${currentPNData.pn_code}!\n\n` +
+                        `Would you like to reserve an appointment for this patient now?\n\n` +
+                        `ใบเสร็จ ${result.bill_code} สร้างสำเร็จแล้ว!\n\n` +
+                        `คุณต้องการจองนัดหมายสำหรับคนไข้ท่านนี้หรือไม่?`
+                    );
+
+                    if (reserveAppointment) {
+                        // Show reservation modal
+                        console.log('=== Calling showReservationModal from saveBillForPN ===');
+                        console.log('pnCaseId to pass:', pnCaseId);
+                        console.log('patientId to pass:', patientId);
+                        console.log('currentPNData.pn_code:', currentPNData?.pn_code);
+                        showReservationModal(pnCaseId, patientId, currentPNData?.pn_code);
+                    }
+                } else {
+                    const error = await response.json();
+                    alert('Error creating bill: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error saving bill:', error);
+                alert('Network error. Please try again.');
+            }
+        }
+
+        // ========================================
+        // End Bill Creation Functions
+        // ========================================
+
+        // ========================================
+        // Appointment Reservation Functions
+        // ========================================
+
+        let selectedTimeSlots = []; // Array for multiple consecutive slots
+        let reservationClinics = [];
+        let reservationPTs = [];
+
+        async function showReservationModal(pnCaseId, patientId, pnCode = null) {
+            console.log('=== showReservationModal ===');
+            console.log('pnCaseId param:', pnCaseId);
+            console.log('patientId param:', patientId);
+            console.log('pnCode param:', pnCode);
+
+            // Reset form
+            selectedTimeSlots = [];
+            isSubmittingReservation = false; // Reset submission flag
+            const pnCaseIdValue = pnCaseId || '';
+            console.log('Setting reservation-pn-case-id to:', pnCaseIdValue);
+            document.getElementById('reservation-pn-case-id').value = pnCaseIdValue;
+            document.getElementById('reservation-patient-id').value = patientId;
+            document.getElementById('reservation-clinic-id').value = '';
+            document.getElementById('reservation-pt-id').value = '';
+            document.getElementById('reservation-date').value = '';
+            document.getElementById('reservation-reason').value = '';
+            document.getElementById('reservation-notes').value = '';
+            document.getElementById('time-slots-container').innerHTML = '<p class="text-muted text-center">Please select clinic, PT, and date to see available time slots</p>';
+            hideReservationAlert();
+
+            // Set patient info
+            if (patientData) {
+                document.getElementById('reservation-patient-info').textContent =
+                    `Reserving appointment for: ${patientData.first_name} ${patientData.last_name} (HN: ${patientData.hn})`;
+            }
+
+            // Show PN case info if provided
+            if (pnCaseId && pnCode) {
+                document.getElementById('reservation-pn-info').style.display = 'block';
+                document.getElementById('reservation-pn-code-display').textContent = pnCode;
+            } else {
+                document.getElementById('reservation-pn-info').style.display = 'none';
+            }
+
+            // Load clinics
+            await loadReservationClinics();
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('reserveAppointmentModal'));
+            modal.show();
+        }
+
+        async function loadReservationClinics() {
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch('/api/clinics', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    reservationClinics = await response.json();
+                    const select = document.getElementById('reservation-clinic-id');
+                    select.innerHTML = '<option value="">Select Clinic...</option>';
+                    reservationClinics.forEach(clinic => {
+                        const option = document.createElement('option');
+                        option.value = clinic.id;
+                        option.textContent = clinic.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading clinics:', error);
+            }
+        }
+
+        async function loadReservationPTs() {
+            const clinicId = document.getElementById('reservation-clinic-id').value;
+            if (!clinicId) {
+                document.getElementById('reservation-pt-id').innerHTML = '<option value="">Select PT...</option>';
+                return;
+            }
+
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch(`/api/users?role=PT&clinic_id=${clinicId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    reservationPTs = await response.json();
+                    const select = document.getElementById('reservation-pt-id');
+                    select.innerHTML = '<option value="">Select PT...</option>';
+                    reservationPTs.forEach(pt => {
+                        const option = document.createElement('option');
+                        option.value = pt.id;
+                        option.textContent = `${pt.first_name} ${pt.last_name}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading PTs:', error);
+            }
+        }
+
+        function clearTimeSlots() {
+            selectedTimeSlots = [];
+            document.getElementById('time-slots-container').innerHTML =
+                '<p class="text-muted text-center">Please select clinic, PT, and date to see available time slots</p>';
+        }
+
+        async function loadAvailableTimeSlots() {
+            const clinicId = document.getElementById('reservation-clinic-id').value;
+            const ptId = document.getElementById('reservation-pt-id').value;
+            const date = document.getElementById('reservation-date').value;
+
+            if (!clinicId || !ptId || !date) {
+                return;
+            }
+
+            // Show loading
+            document.getElementById('time-slots-container').innerHTML =
+                '<p class="text-muted text-center"><i class="bi bi-hourglass-split me-2"></i>Loading available time slots...</p>';
+
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch(
+                    `/api/appointments/available-slots?date=${date}&clinic_id=${clinicId}&pt_id=${ptId}`,
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+
+                if (response.ok) {
+                    const data = await response.json();
+                    renderTimeSlots(data.slots);
+                } else {
+                    document.getElementById('time-slots-container').innerHTML =
+                        '<p class="text-danger text-center">Error loading time slots. Please try again.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading time slots:', error);
+                document.getElementById('time-slots-container').innerHTML =
+                    '<p class="text-danger text-center">Network error. Please try again.</p>';
+            }
+        }
+
+        function renderTimeSlots(slots) {
+            const container = document.getElementById('time-slots-container');
+
+            if (slots.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No time slots available for this date</p>';
+                return;
+            }
+
+            const availableSlots = slots.filter(slot => slot.available);
+
+            if (availableSlots.length === 0) {
+                container.innerHTML = '<p class="text-warning text-center">All time slots are booked for this date. Please select another date.</p>';
+                return;
+            }
+
+            // Render available time slots as buttons
+            let html = '<div class="row g-2">';
+            slots.forEach(slot => {
+                if (slot.available) {
+                    html += `
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <button type="button"
+                                    class="btn btn-outline-primary w-100 time-slot-btn"
+                                    data-start="${slot.start_time}"
+                                    data-end="${slot.end_time}"
+                                    onclick="selectTimeSlot('${slot.start_time}', '${slot.end_time}', '${slot.label}')">
+                                <i class="bi bi-clock me-1"></i>${slot.label}
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function selectTimeSlot(startTime, endTime, label) {
+            const clickedSlot = { startTime, endTime, label };
+
+            // Check if this slot is already selected
+            const existingIndex = selectedTimeSlots.findIndex(s => s.startTime === startTime);
+
+            if (existingIndex >= 0) {
+                // Deselect this slot
+                selectedTimeSlots.splice(existingIndex, 1);
+                event.target.classList.remove('btn-primary');
+                event.target.classList.add('btn-outline-primary');
+            } else {
+                // Add new slot
+                selectedTimeSlots.push(clickedSlot);
+
+                // Sort slots by start time
+                selectedTimeSlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+                // Validate consecutive slots
+                if (!areTimeSlotsConsecutive(selectedTimeSlots)) {
+                    // Not consecutive - remove the newly added slot
+                    selectedTimeSlots.splice(selectedTimeSlots.findIndex(s => s.startTime === startTime), 1);
+                    showReservationAlert('Please select consecutive time slots only (no gaps allowed)', 'warning');
+                    return;
+                }
+
+                // Mark selected
+                event.target.classList.remove('btn-outline-primary');
+                event.target.classList.add('btn-primary');
+            }
+
+            // Update display to show selected range
+            updateSelectedTimeSlotsDisplay();
+        }
+
+        function areTimeSlotsConsecutive(slots) {
+            if (slots.length <= 1) return true;
+
+            for (let i = 0; i < slots.length - 1; i++) {
+                // Check if current slot's end time equals next slot's start time
+                if (slots[i].endTime !== slots[i + 1].startTime) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function updateSelectedTimeSlotsDisplay() {
+            // Remove any existing selection info
+            const existingInfo = document.getElementById('selected-slots-info');
+            if (existingInfo) existingInfo.remove();
+
+            if (selectedTimeSlots.length > 0) {
+                const firstSlot = selectedTimeSlots[0];
+                const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+                const duration = selectedTimeSlots.length * 30; // Each slot is 30 minutes
+
+                const infoHtml = `
+                    <div id="selected-slots-info" class="alert alert-success mt-2">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Selected:</strong> ${firstSlot.startTime.substring(0, 5)} - ${lastSlot.endTime.substring(0, 5)}
+                        (${selectedTimeSlots.length} slot${selectedTimeSlots.length > 1 ? 's' : ''}, ${duration} minutes)
+                    </div>
+                `;
+
+                document.getElementById('time-slots-container').insertAdjacentHTML('afterend', infoHtml);
+            }
+        }
+
+        let isSubmittingReservation = false; // Prevent double-click
+
+        async function confirmAppointmentReservation() {
+            // Prevent double-click
+            if (isSubmittingReservation) {
+                console.log('Already submitting reservation, please wait...');
+                return;
+            }
+
+            // Validate inputs
+            const clinicId = document.getElementById('reservation-clinic-id').value;
+            const ptId = document.getElementById('reservation-pt-id').value;
+            const date = document.getElementById('reservation-date').value;
+            const reason = document.getElementById('reservation-reason').value;
+            const notes = document.getElementById('reservation-notes').value;
+            const patientId = document.getElementById('reservation-patient-id').value;
+            const pnCaseId = document.getElementById('reservation-pn-case-id').value;
+
+            console.log('=== confirmAppointmentReservation ===');
+            console.log('pnCaseId from form:', pnCaseId);
+            console.log('pnCaseId type:', typeof pnCaseId);
+            console.log('pnCaseId empty?:', pnCaseId === '');
+            console.log('pnCaseId after parseInt:', pnCaseId ? parseInt(pnCaseId) : null);
+
+            if (!clinicId || !ptId || !date) {
+                showReservationAlert('Please select clinic, PT, and date', 'warning');
+                return;
+            }
+
+            if (selectedTimeSlots.length === 0) {
+                showReservationAlert('Please select at least one time slot', 'warning');
+                return;
+            }
+
+            // Use first slot's start time and last slot's end time for extended appointment
+            const firstSlot = selectedTimeSlots[0];
+            const lastSlot = selectedTimeSlots[selectedTimeSlots.length - 1];
+            const duration = selectedTimeSlots.length * 30; // Each slot is 30 minutes
+
+            // Create appointment data
+            const appointmentData = {
+                booking_type: 'OLD_PATIENT',
+                patient_id: parseInt(patientId),
+                pt_id: parseInt(ptId),
+                clinic_id: parseInt(clinicId),
+                appointment_date: date,
+                start_time: firstSlot.startTime,
+                end_time: lastSlot.endTime,
+                appointment_type: 'TREATMENT',
+                reason: reason || 'Follow-up treatment',
+                notes: notes || '',
+                pn_case_id: pnCaseId ? parseInt(pnCaseId) : null
+            };
+
+            console.log('Creating single appointment with data:', appointmentData);
+            isSubmittingReservation = true; // Set flag
+
+            try {
+                const token = getCookie('authToken');
+                const response = await fetch('/api/appointments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(appointmentData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('reserveAppointmentModal'));
+                    if (modal) modal.hide();
+
+                    // Show success message with selected time range
+                    const timeRange = `${firstSlot.startTime.substring(0, 5)} - ${lastSlot.endTime.substring(0, 5)}`;
+                    alert(
+                        `Appointment reserved successfully!\n\n` +
+                        `Date: ${date}\n` +
+                        `Time: ${timeRange} (${duration} minutes)\n\n` +
+                        `การจองนัดหมายสำเร็จ!\n` +
+                        `วันที่: ${new Date(date).toLocaleDateString('th-TH')}\n` +
+                        `เวลา: ${timeRange} (${duration} นาที)`
+                    );
+
+                    // Reload timeline to show new appointment
+                    loadTimeline();
+
+                    // Reset flag after success
+                    isSubmittingReservation = false;
+                } else {
+                    const error = await response.json();
+                    showReservationAlert('Error: ' + (error.error || 'Failed to create appointment'), 'danger');
+                    isSubmittingReservation = false; // Reset flag on error
+                }
+            } catch (error) {
+                console.error('Error creating appointment:', error);
+                showReservationAlert('Network error. Please try again.', 'danger');
+                isSubmittingReservation = false; // Reset flag on exception
+            }
+        }
+
+        function showReservationAlert(message, type = 'info') {
+            const alert = document.getElementById('reservation-alert');
+            alert.className = `alert alert-${type} mt-3`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function hideReservationAlert() {
+            const alert = document.getElementById('reservation-alert');
+            alert.style.display = 'none';
+        }
+
+        // ========================================
+        // End Appointment Reservation Functions
+        // ========================================
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        function logout() {
+            document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            localStorage.clear();
+            window.location.href = '/login';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPatientData();
+            loadClinics();
+
+            // Check if should auto-open create PN modal
+            if (window.location.hash === '#create-pn') {
+                setTimeout(showCreatePNModal, 500);
+            }
+
+            // Check if should auto-open reservation modal for a specific PN case
+            const urlParams = new URLSearchParams(window.location.search);
+            const reservePnId = urlParams.get('reserve_pn');
+            const pnCode = urlParams.get('pn_code');
+
+            if (reservePnId && pnCode) {
+                // Wait for patient data to load, then open reservation modal
+                setTimeout(() => {
+                    showReservationModal(parseInt(reservePnId), patientId, decodeURIComponent(pnCode));
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
