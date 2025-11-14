@@ -1312,46 +1312,6 @@ app.get('/api/patients/search', authenticateToken, async (req, res) => {
     }
 });
 
-// Get single patient
-app.get('/api/patients/:id', authenticateToken, async (req, res) => {
-    try {
-        const db = req.app.locals.db;
-        const { id } = req.params;
-        
-        const [patients] = await db.execute(
-            `SELECT p.*, c.name as clinic_name,
-                    CONCAT(u.first_name, ' ', u.last_name) as created_by_name
-             FROM patients p
-             JOIN clinics c ON p.clinic_id = c.id
-             JOIN users u ON p.created_by = u.id
-             WHERE p.id = ?`,
-            [id]
-        );
-        
-        if (patients.length === 0) {
-            return res.status(404).json({ error: 'Patient not found' });
-        }
-        
-        // Check clinic access
-        const patient = patients[0];
-        if (req.user.role !== 'ADMIN') {
-            const [grants] = await db.execute(
-                'SELECT clinic_id FROM user_clinic_grants WHERE user_id = ? AND clinic_id = ? UNION SELECT ? as clinic_id WHERE ? = ?',
-                [req.user.id, patient.clinic_id, req.user.clinic_id, req.user.clinic_id, patient.clinic_id]
-            );
-            
-            if (grants.length === 0) {
-                return res.status(403).json({ error: 'No access to this patient' });
-            }
-        }
-        
-        res.json(patient);
-    } catch (error) {
-        console.error('Get patient error:', error);
-        res.status(500).json({ error: 'Failed to retrieve patient' });
-    }
-});
-
 // Check if PTHN (Patient Hospital Number) already exists
 app.get('/api/patients/check-duplicate/:hn', authenticateToken, async (req, res) => {
     try {
@@ -1391,6 +1351,46 @@ app.get('/api/patients/check-duplicate/:hn', authenticateToken, async (req, res)
     } catch (error) {
         console.error('Check duplicate HN error:', error);
         res.status(500).json({ error: 'Failed to check HN' });
+    }
+});
+
+// Get single patient
+app.get('/api/patients/:id', authenticateToken, async (req, res) => {
+    try {
+        const db = req.app.locals.db;
+        const { id } = req.params;
+
+        const [patients] = await db.execute(
+            `SELECT p.*, c.name as clinic_name,
+                    CONCAT(u.first_name, ' ', u.last_name) as created_by_name
+             FROM patients p
+             JOIN clinics c ON p.clinic_id = c.id
+             JOIN users u ON p.created_by = u.id
+             WHERE p.id = ?`,
+            [id]
+        );
+
+        if (patients.length === 0) {
+            return res.status(404).json({ error: 'Patient not found' });
+        }
+
+        // Check clinic access
+        const patient = patients[0];
+        if (req.user.role !== 'ADMIN') {
+            const [grants] = await db.execute(
+                'SELECT clinic_id FROM user_clinic_grants WHERE user_id = ? AND clinic_id = ? UNION SELECT ? as clinic_id WHERE ? = ?',
+                [req.user.id, patient.clinic_id, req.user.clinic_id, req.user.clinic_id, patient.clinic_id]
+            );
+
+            if (grants.length === 0) {
+                return res.status(403).json({ error: 'No access to this patient' });
+            }
+        }
+
+        res.json(patient);
+    } catch (error) {
+        console.error('Get patient error:', error);
+        res.status(500).json({ error: 'Failed to retrieve patient' });
     }
 });
 
