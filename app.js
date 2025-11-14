@@ -1352,6 +1352,48 @@ app.get('/api/patients/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Check if PTHN (Patient Hospital Number) already exists
+app.get('/api/patients/check-duplicate/:hn', authenticateToken, async (req, res) => {
+    try {
+        const db = req.app.locals.db;
+        const { hn } = req.params;
+
+        if (!hn || hn.trim() === '') {
+            return res.status(400).json({ error: 'HN is required' });
+        }
+
+        // Check if HN exists in database
+        const [patients] = await db.execute(
+            'SELECT id, hn, pt_number, first_name, last_name FROM patients WHERE hn = ?',
+            [hn.trim()]
+        );
+
+        if (patients.length > 0) {
+            // HN already exists - return the existing patient info
+            const patient = patients[0];
+            res.status(409).json({
+                isDuplicate: true,
+                message: `HN "${hn}" is already in use`,
+                existingPatient: {
+                    id: patient.id,
+                    hn: patient.hn,
+                    pt_number: patient.pt_number,
+                    name: `${patient.first_name} ${patient.last_name}`
+                }
+            });
+        } else {
+            // HN is available
+            res.status(200).json({
+                isDuplicate: false,
+                message: `HN "${hn}" is available`
+            });
+        }
+    } catch (error) {
+        console.error('Check duplicate HN error:', error);
+        res.status(500).json({ error: 'Failed to check HN' });
+    }
+});
+
 // Create patient
 app.post('/api/patients', authenticateToken, [
     body('hn').notEmpty(),
