@@ -6,35 +6,34 @@
 
   <!-- BRAND -->
   <link rel="icon" href="/public/images/Fav.png" type="image/x-icon">
-  <title>RehabPlus System</title>
+  <title>RehabPlus System - Login</title>
 
   <!-- BOOTSTRAP -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
+  <!-- DESIGN SYSTEM -->
+  <link href="/public/css/variables.css" rel="stylesheet">
+
   <style>
     :root{
-      /* Clinic palette */
-      --primary-500:#0ea5e9;  /* medical blue */
-      --primary-600:#0284c7;
-      --accent-500:#14b8a6;   /* teal */
-      --ink-700:#0f172a;
-      --ink-500:#334155;
-      --bg-50:#f8fafc;
+      /* Use design system variables */
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --primary-gradient-vertical: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
     }
 
-    /* Background: soft gradient */
+    /* Background: soft purple gradient */
     body{
       min-height:100vh;
       margin:0;
       display:flex; align-items:center; justify-content:center;
       background:
-        radial-gradient(1200px 800px at 10% 0%, rgba(20,184,166,0.15) 0%, transparent 60%),
-        radial-gradient(1000px 700px at 100% 100%, rgba(14,165,233,0.2) 0%, transparent 65%),
-        linear-gradient(135deg, #e6f6ff 0%, #f0fffc 100%);
+        radial-gradient(1200px 800px at 10% 0%, rgba(102, 126, 234, 0.15) 0%, transparent 60%),
+        radial-gradient(1000px 700px at 100% 100%, rgba(118, 75, 162, 0.2) 0%, transparent 65%),
+        linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
       overflow:hidden;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      color:var(--ink-700);
+      font-family: var(--font-family-sans, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
+      color: var(--color-text-primary, #2d3748);
       position:relative;
     }
 
@@ -43,8 +42,8 @@
       content:"";
       position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
-        radial-gradient(circle at 1px 1px, #0ea5e9 1.2px, transparent 1.2px),
-        radial-gradient(circle at 1px 1px, #14b8a6 1.2px, transparent 1.2px);
+        radial-gradient(circle at 1px 1px, #667eea 1.2px, transparent 1.2px),
+        radial-gradient(circle at 1px 1px, #764ba2 1.2px, transparent 1.2px);
       background-size:22px 22px, 44px 44px;
       mix-blend-mode:multiply;
       z-index:0;
@@ -54,8 +53,8 @@
     .pill{
       position:fixed; border-radius:999px; filter:blur(0.3px);
       opacity:.1; mix-blend-mode:multiply;
-      background:linear-gradient(135deg, var(--primary-500), var(--accent-500));
-      box-shadow:0 10px 40px rgba(2,132,199,.25);
+      background: var(--primary-gradient);
+      box-shadow:0 10px 40px rgba(102, 126, 234, 0.25);
       animation:float 14s ease-in-out infinite;
       pointer-events:none; z-index:0;
     }
@@ -73,7 +72,7 @@
     .sym{
       position:absolute; opacity:.22;
       background-repeat:no-repeat; background-position:center; background-size:contain;
-      filter: drop-shadow(0 8px 24px rgba(2,132,199,.25));
+      filter: drop-shadow(0 8px 24px rgba(102, 126, 234,.25));
       animation: drift 24s ease-in-out infinite, spin 36s linear infinite;
       will-change: transform, opacity;
     }
@@ -106,14 +105,14 @@
     .plus{
       background-image: url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'>\
-<g fill='none' stroke='%230ea5e9' stroke-width='5' stroke-linecap='round'>\
+<g fill='none' stroke='%23667eea' stroke-width='5' stroke-linecap='round'>\
 <path d='M24 6v36'/><path d='M6 24h36'/></g></svg>");
     }
     /* engineering gear */
     .gear{
       background-image: url(\"data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'>\
-<g fill='none' stroke='%2314b8a6' stroke-width='3'>\
+<g fill='none' stroke='%23764ba2' stroke-width='3'>\
 <circle cx='24' cy='24' r='7'/>\
 <path d='M24 4v6M24 38v6M4 24h6M38 24h6M9 9l4.2 4.2M34.8 34.8L39 39M9 39l4.2-4.2M34.8 13.2L39 9'/></g></svg>\");
     }
@@ -121,14 +120,14 @@
     .ecg{
       background-image: url(\"data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'>\
-<polyline fill='none' stroke='%230ea5e9' stroke-width='3' points='0,16 10,16 16,26 22,6 28,22 34,14 40,16 64,16' stroke-linejoin='round' stroke-linecap='round'/>\
+<polyline fill='none' stroke='%23667eea' stroke-width='3' points='0,16 10,16 16,26 22,6 28,22 34,14 40,16 64,16' stroke-linejoin='round' stroke-linecap='round'/>\
 </svg>\");
     }
     /* molecule / hex network */
     .molecule{
       background-image: url(\"data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'>\
-<g fill='none' stroke='%2314b8a6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'>\
+<g fill='none' stroke='%23764ba2' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'>\
 <path d='M16 8l8-4 8 4v8l-8 4-8-4zM8 32l8-4 8 4v8l-8 4-8-4zM24 16l8 4 8-4 8 4' stroke-opacity='.0'/>\
 <path d='M24 20v8M16 28l8 4M32 28l-8 4'/></g></svg>\");
     }
@@ -136,7 +135,7 @@
     .chip{
       background-image: url(\"data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'>\
-<g fill='none' stroke='%230284c7' stroke-width='3' stroke-linejoin='round'>\
+<g fill='none' stroke='%23667eea' stroke-width='3' stroke-linejoin='round'>\
 <rect x='12' y='12' width='24' height='24' rx='3'/>\
 <rect x='18' y='18' width='12' height='12' rx='2'/>\
 <path d='M24 2v8M24 46v-8M2 24h8M46 24h-8M9 9l6 6M39 39l-6-6M9 39l6-6M39 9l-6 6'/></g></svg>\");
@@ -145,7 +144,7 @@
     .joint{
       background-image: url(\"data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'>\
-<g fill='none' stroke='%2314b8a6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'>\
+<g fill='none' stroke='%23764ba2' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'>\
 <path d='M20 6c4 4 6 8 6 12s-2 8-6 12'/>\
 <path d='M28 6c-4 4-6 8-6 12s2 8 6 12'/>\
 <path d='M14 24h8M26 24h8'/></g></svg>\");
@@ -161,9 +160,9 @@
       width:100%; max-width:430px;
       background:rgba(255,255,255,.82);
       -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-      border:1px solid rgba(14,165,233,.18);
+      border:1px solid rgba(102, 126, 234,.18);
       border-radius:20px;
-      box-shadow: 0 10px 25px rgba(14,165,233,.10), 0 30px 80px rgba(20,184,166,.12);
+      box-shadow: 0 10px 25px rgba(102, 126, 234,.10), 0 30px 80px rgba(118, 75, 162,.12);
       padding:2.25rem; position:relative; z-index:3;
     }
 
@@ -175,7 +174,7 @@
     .logo .ring::before,
     .logo .ring::after{
       content:""; position:absolute; inset:-8px; border-radius:999px;
-      background: conic-gradient(from 180deg, var(--primary-500), var(--accent-500), var(--primary-500));
+      background: conic-gradient(from 180deg, #667eea, #764ba2, #667eea);
       filter: blur(8px); opacity:.35; animation:ringspin 9s linear infinite;
     }
     .logo .ring::after{ inset:-16px; opacity:.18; animation-duration:14s;}
@@ -183,37 +182,37 @@
 
     .logo img{
       width:84px; height:84px; object-fit:contain; background:white; border-radius:18px;
-      border:1px solid rgba(2,132,199,.15); box-shadow:0 6px 18px rgba(2,132,199,.15);
+      border:1px solid rgba(102, 126, 234,.15); box-shadow:0 6px 18px rgba(102, 126, 234,.15);
       position:relative; z-index:1;
     }
 
-    h3{ font-weight:700; letter-spacing:.2px; margin-top:.75rem; margin-bottom:.2rem; color:var(--ink-700); }
+    h3{ font-weight:700; letter-spacing:.2px; margin-top:.75rem; margin-bottom:.2rem; color:var(--color-text-primary, #2d3748); }
     .subtitle{ color:var(--ink-500); font-size:.95rem; }
 
     /* Inputs */
-    .form-label{ font-weight:600; color:var(--ink-700); }
+    .form-label{ font-weight:600; color:var(--color-text-primary, #2d3748); }
     .input-group-text{
-      background:linear-gradient(135deg, #eef7ff, #effdf9);
-      border-color:rgba(2,132,199,.25);
-      color:var(--primary-600);
+      background:linear-gradient(135deg, #f5f3ff, #ede9fe);
+      border-color:rgba(102, 126, 234,.25);
+      color:#667eea;
       font-size:1.05rem;
     }
-    .form-control{ border-color:rgba(2,132,199,.25); padding:.7rem .9rem; }
-    .form-control:focus{ border-color:var(--primary-500); box-shadow:0 0 0 .2rem rgba(14,165,233,.15); }
+    .form-control{ border-color:rgba(102, 126, 234,.25); padding:.7rem .9rem; }
+    .form-control:focus{ border-color:#667eea; box-shadow:0 0 0 .2rem rgba(102, 126, 234,.15); }
 
     /* Button */
     .btn-login{
-      background:linear-gradient(135deg, var(--primary-500), var(--accent-500));
+      background:linear-gradient(135deg, #667eea, #764ba2);
       border:none; color:white; padding:.85rem; font-weight:600; letter-spacing:.2px;
-      border-radius:12px; box-shadow:0 8px 20px rgba(14,165,233,.25);
+      border-radius:12px; box-shadow:0 8px 20px rgba(102, 126, 234,.25);
       transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
     }
-    .btn-login:hover{ transform:translateY(-1px); box-shadow:0 12px 28px rgba(14,165,233,.28); }
+    .btn-login:hover{ transform:translateY(-1px); box-shadow:0 12px 28px rgba(102, 126, 234,.28); }
     .btn-login:active{ transform:translateY(0); opacity:.95; }
 
     /* Small trust row */
-    .trust{ display:flex; gap:.75rem; justify-content:center; align-items:center; color:var(--ink-500); font-size:.88rem; }
-    .trust .dot{ width:6px; height:6px; background:var(--accent-500); border-radius:50%; opacity:.8; }
+    .trust{ display:flex; gap:.75rem; justify-content:center; align-items:center; color: var(--color-text-secondary, #4a5568); font-size:.88rem; }
+    .trust .dot{ width:6px; height:6px; background: #764ba2; border-radius:50%; opacity:.8; }
 
     /* Footer */
     .foot{ color:#64748b; font-size:.8rem; }
@@ -323,6 +322,7 @@
 
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script src="/public/js/utils.js"></script>
 
   <script>
     (function(){
