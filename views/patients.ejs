@@ -6,6 +6,11 @@
     <title>Patients - PN-App System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Design System -->
+    <link href="/public/css/variables.css" rel="stylesheet">
+    <link href="/public/css/base.css" rel="stylesheet">
+    <link href="/public/css/accessibility.css" rel="stylesheet">
     <style>
         .sidebar {
             min-height: 100vh;
@@ -48,26 +53,27 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
             <%- include('partials/sidebar', { user, activePage: 'patients' }) %>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4" role="main" aria-label="Patient management">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Patients</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
                         <div class="btn-group me-2" role="group">
                             <button type="button" class="btn btn-sm btn-success" onclick="downloadCSVTemplate()">
-                                <i class="bi bi-download me-1"></i>Download Template
+                                <i class="bi bi-download me-1" aria-hidden="true"></i>Download Template
                             </button>
                             <button type="button" class="btn btn-sm btn-info" onclick="showImportModal()">
-                                <i class="bi bi-upload me-1"></i>Import CSV
+                                <i class="bi bi-upload me-1" aria-hidden="true"></i>Import CSV
                             </button>
                         </div>
                         <button type="button" class="btn btn-sm btn-primary" onclick="location.href='/patient/register'">
-                            <i class="bi bi-plus-circle me-1"></i>New Patient
+                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>New Patient
                         </button>
                     </div>
                 </div>
@@ -87,8 +93,8 @@
                             </select>
                         </div>
                         <div class="col-md-1 mb-2">
-                            <button class="btn btn-primary w-100" onclick="searchPatients()">
-                                <i class="bi bi-search"></i>
+                            <button class="btn btn-primary w-100" onclick="searchPatients()" aria-label="Search patients">
+                                <i class="bi bi-search" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
@@ -117,12 +123,12 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Import Patients from CSV</h5>
+                    <h5 class="modal-title"><i class="bi bi-upload me-2" aria-hidden="true"></i>Import Patients from CSV</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
+                        <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                         <strong>Instructions:</strong>
                         <ul class="mb-0 mt-2">
                             <li>Download the CSV template first</li>
@@ -146,7 +152,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-info" onclick="uploadCSV()" id="btn-upload">
-                        <i class="bi bi-upload me-1"></i>Upload & Import
+                        <i class="bi bi-upload me-1" aria-hidden="true"></i>Upload & Import
                     </button>
                 </div>
             </div>
@@ -155,6 +161,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/js/utils.js"></script>
+    <script src="/public/js/accessibility.js"></script>
     <script src="/public/js/patients.js"></script>
 </body>
 </html>

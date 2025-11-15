@@ -11,6 +11,7 @@
     <!-- Design System -->
     <link href="/public/css/variables.css" rel="stylesheet">
     <link href="/public/css/base.css" rel="stylesheet">
+    <link href="/public/css/accessibility.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
@@ -145,22 +146,23 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container-fluid">
         <div class="row">
             <%- include('partials/sidebar', { user, activePage: 'statistics' }) %>
 
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4" role="main" aria-label="Statistics dashboard">
                 <div class="page-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                     <div>
-                        <h1 class="h3 mb-2"><i class="bi bi-graph-up me-2 text-primary"></i>Statistics Dashboard</h1>
+                        <h1 class="h3 mb-2"><i class="bi bi-graph-up me-2 text-primary" aria-hidden="true"></i>Statistics Dashboard</h1>
                         <p class="mb-0">View revenue and billing statistics across all clinics.</p>
                     </div>
                     <div class="d-flex gap-2">
                         <button class="btn btn-success" id="btn-export-csv">
-                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
+                            <i class="bi bi-file-earmark-spreadsheet me-1" aria-hidden="true"></i> Export CSV
                         </button>
                         <button class="btn btn-primary" id="btn-refresh-stats">
-                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i> Refresh
                         </button>
                     </div>
                 </div>
@@ -232,7 +234,7 @@
                 <!-- Clinic Statistics Table -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5><i class="bi bi-building me-2"></i>Bill Statistics by Clinic</h5>
+                        <h5><i class="bi bi-building me-2" aria-hidden="true"></i>Bill Statistics by Clinic</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -256,7 +258,7 @@
                 <!-- Detailed Bills Table -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5><i class="bi bi-receipt me-2"></i>Detailed Bills (Top 50 by Amount)</h5>
+                        <h5><i class="bi bi-receipt me-2" aria-hidden="true"></i>Detailed Bills (Top 50 by Amount)</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -285,7 +287,7 @@
                 <!-- Service Ranking Table -->
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5><i class="bi bi-star me-2"></i>Top Services by Revenue</h5>
+                        <h5><i class="bi bi-star me-2" aria-hidden="true"></i>Top Services by Revenue</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -313,6 +315,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/public/js/utils.js"></script>
+    <script src="/public/js/accessibility.js"></script>
     <script src="/public/js/statistics.js"></script>
 </body>
 </html>

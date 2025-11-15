@@ -483,6 +483,11 @@ function showBookingModal() {
     if (linkedPNInfo) linkedPNInfo.style.display = 'none';
 
     const modal = new bootstrap.Modal(modalEl);
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(modalEl, document.activeElement);
+    }
     modal.show();
 }
 
@@ -897,6 +902,11 @@ async function viewAppointmentDetails(appointmentId) {
     document.getElementById('appointmentDetails').innerHTML = detailsHtml;
 
     const modal = new bootstrap.Modal(document.getElementById('viewAppointmentModal'));
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(document.getElementById("viewAppointmentModal"), document.activeElement);
+    }
     modal.show();
 }
 
@@ -1131,6 +1141,11 @@ function showPTAssessmentModal(appointmentId, courseWarning = '') {
 
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('ptAssessmentModal'));
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(document.getElementById("ptAssessmentModal"), document.activeElement);
+    }
     modal.show();
 }
 

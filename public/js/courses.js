@@ -140,6 +140,11 @@ function showAddTemplateModal() {
     document.getElementById('templateActive').checked = true;
 
     const modal = new bootstrap.Modal(document.getElementById('templateModal'));
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(document.getElementById('templateModal'), document.activeElement);
+    }
     modal.show();
 }
 
@@ -152,6 +157,11 @@ function editTemplate(templateId) {
     document.getElementById('templateName').value = template.template_name;
     document.getElementById('templateDescription').value = template.description || '';
     document.getElementById('templateSessions').value = template.total_sessions;
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(document.getElementById('templateModal'), document.activeElement);
+    }
     document.getElementById('templatePrice').value = template.default_price;
     document.getElementById('templateValidity').value = template.validity_days || '';
     document.getElementById('templateActive').checked = template.active;

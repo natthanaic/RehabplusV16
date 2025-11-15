@@ -11,6 +11,7 @@
     <!-- Design System -->
     <link href="/public/css/variables.css" rel="stylesheet">
     <link href="/public/css/base.css" rel="stylesheet">
+    <link href="/public/css/accessibility.css" rel="stylesheet">
 
     <style>
         .sidebar {
@@ -60,13 +61,16 @@
     </style>
 </head>
 <body>
+    <!-- Skip to main content for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
             <%- include('partials/sidebar', { user, activePage: 'dashboard' }) %>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4" role="main" aria-label="Dashboard content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
@@ -418,6 +422,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
     <script src="/public/js/utils.js"></script>
+    <script src="/public/js/accessibility.js"></script>
     <script src="/public/js/dashboard.js"></script>
 </body>
 </html>
