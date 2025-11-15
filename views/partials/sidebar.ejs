@@ -8,21 +8,21 @@
         <ul class="nav flex-column">
             <!-- Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="/dashboard">
+                <a class="nav-link <%= activePage === 'dashboard' ? 'active' : '' %>" href="/dashboard">
                     <i class="bi bi-speedometer2 me-2"></i>Dashboard
                 </a>
             </li>
 
             <!-- Patients -->
             <li class="nav-item">
-                <a class="nav-link" href="/patients">
+                <a class="nav-link <%= activePage === 'patients' ? 'active' : '' %>" href="/patients">
                     <i class="bi bi-people me-2"></i>Patients
                 </a>
             </li>
 
             <!-- Register Patient -->
             <li class="nav-item">
-                <a class="nav-link" href="/patient/register">
+                <a class="nav-link <%= activePage === 'register' ? 'active' : '' %>" href="/patient/register">
                     <i class="bi bi-person-plus me-2"></i>Register Patient
                 </a>
             </li>
@@ -30,7 +30,7 @@
             <!-- Appointments (ADMIN, PT) -->
             <% if (user.role === 'ADMIN' || user.role === 'PT') { %>
             <li class="nav-item">
-                <a class="nav-link" href="/appointments">
+                <a class="nav-link <%= activePage === 'appointments' ? 'active' : '' %>" href="/appointments">
                     <i class="bi bi-calendar-check me-2"></i>Appointments
                 </a>
             </li>
@@ -38,7 +38,7 @@
 
             <!-- Courses -->
             <li class="nav-item">
-                <a class="nav-link" href="/courses">
+                <a class="nav-link <%= activePage === 'courses' ? 'active' : '' %>" href="/courses">
                     <i class="bi bi-book me-2"></i>Courses
                 </a>
             </li>
@@ -46,7 +46,7 @@
             <!-- Bills -->
             <% if (user.role === 'ADMIN') { %>
             <li class="nav-item">
-                <a class="nav-link" href="/bills">
+                <a class="nav-link <%= activePage === 'bills' ? 'active' : '' %>" href="/bills">
                     <i class="bi bi-receipt me-2"></i>Bills
                 </a>
             </li>
@@ -55,7 +55,7 @@
             <!-- Statistics (ADMIN, PT) -->
             <% if (user.role === 'ADMIN' || user.role === 'PT') { %>
             <li class="nav-item">
-                <a class="nav-link" href="/statistics">
+                <a class="nav-link <%= activePage === 'statistics' ? 'active' : '' %>" href="/statistics">
                     <i class="bi bi-graph-up me-2"></i>Statistics
                 </a>
             </li>
@@ -63,14 +63,14 @@
 
             <!-- Diagnostic -->
             <li class="nav-item">
-                <a class="nav-link" href="/diagnostic">
+                <a class="nav-link <%= activePage === 'diagnostic' ? 'active' : '' %>" href="/diagnostic">
                     <i class="bi bi-clipboard-pulse me-2"></i>Diagnostic
                 </a>
             </li>
 
             <!-- Profile -->
             <li class="nav-item">
-                <a class="nav-link" href="/profile">
+                <a class="nav-link <%= activePage === 'profile' ? 'active' : '' %>" href="/profile">
                     <i class="bi bi-person-circle me-2"></i>Profile
                 </a>
             </li>
@@ -84,42 +84,42 @@
 
             <!-- Services -->
             <li class="nav-item">
-                <a class="nav-link" href="/admin/services">
+                <a class="nav-link <%= activePage === 'services' ? 'active' : '' %>" href="/admin/services">
                     <i class="bi bi-list-check me-2"></i>Services
                 </a>
             </li>
 
             <!-- Clinics -->
             <li class="nav-item">
-                <a class="nav-link" href="/admin/clinics">
+                <a class="nav-link <%= activePage === 'clinics' ? 'active' : '' %>" href="/admin/clinics">
                     <i class="bi bi-building me-2"></i>Clinics
                 </a>
             </li>
 
             <!-- Users -->
             <li class="nav-item">
-                <a class="nav-link" href="/admin/users">
+                <a class="nav-link <%= activePage === 'users' ? 'active' : '' %>" href="/admin/users">
                     <i class="bi bi-person-gear me-2"></i>Users
                 </a>
             </li>
 
             <!-- Public Booking Settings -->
             <li class="nav-item">
-                <a class="nav-link" href="/admin/booking-settings">
+                <a class="nav-link <%= activePage === 'booking-settings' ? 'active' : '' %>" href="/admin/booking-settings">
                     <i class="bi bi-gear-fill me-2"></i>Booking Settings
                 </a>
             </li>
 
             <!-- Notification Settings -->
             <li class="nav-item">
-                <a class="nav-link" href="/admin/notification-settings">
+                <a class="nav-link <%= activePage === 'notification-settings' ? 'active' : '' %>" href="/admin/notification-settings">
                     <i class="bi bi-bell-fill me-2"></i>Notification Settings
                 </a>
             </li>
 
             <!-- Document Settings -->
             <li class="nav-item">
-                <a class="nav-link" href="/admin/document-settings">
+                <a class="nav-link <%= activePage === 'document-settings' ? 'active' : '' %>" href="/admin/document-settings">
                     <i class="bi bi-file-earmark-text me-2"></i>Document Settings
                 </a>
             </li>
@@ -147,11 +147,3 @@
         </div>
     </div>
 </nav>
-
-<script>
-function logout() {
-    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    localStorage.clear();
-    window.location.href = '/login';
-}
-</script>
