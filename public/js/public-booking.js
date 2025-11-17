@@ -3,6 +3,9 @@
 const CLINIC_ID = 1; // CL001 - LANTAVAFIX
 const CLINIC_CODE = 'CL001';
 
+// Set default timezone to Thailand (Bangkok)
+moment.tz.setDefault('Asia/Bangkok');
+
 // Booking state
 let currentStep = 1;
 let selectedDate = null;
@@ -85,10 +88,11 @@ function setupEventListeners() {
 // Load booking calendar data
 async function loadBookingCalendar() {
     try {
-        const today = moment().format('YYYY-MM-DD');
-        const endDate = moment().add(30, 'days').format('YYYY-MM-DD');
+        const today = moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
+        const endDate = moment().tz('Asia/Bangkok').add(30, 'days').format('YYYY-MM-DD');
 
-        console.log('Loading booking calendar from', today, 'to', endDate, 'for clinic', CLINIC_ID);
+        console.log('🗓️ Loading booking calendar from', today, 'to', endDate, 'for clinic', CLINIC_ID);
+        console.log('📍 Current Thailand time:', moment().tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'));
 
         const response = await fetch(`/api/public/booking-calendar?clinic_id=${CLINIC_ID}&start_date=${today}&end_date=${endDate}`);
 
@@ -120,7 +124,7 @@ function initializeDatePicker() {
         onChange: onDateChange,
         onDayCreate: function(dObj, dStr, fp, dayElem) {
             // Get the date for this day element
-            const dateStr = moment(dayElem.dateObj).format('YYYY-MM-DD');
+            const dateStr = moment(dayElem.dateObj).tz('Asia/Bangkok').format('YYYY-MM-DD');
 
             // Check if there are bookings on this date
             if (bookingCalendarData[dateStr]) {
@@ -153,7 +157,8 @@ function initializeDatePicker() {
 // Handle date change
 function onDateChange(selectedDates) {
     if (selectedDates.length > 0) {
-        selectedDate = moment(selectedDates[0]).format('YYYY-MM-DD');
+        selectedDate = moment(selectedDates[0]).tz('Asia/Bangkok').format('YYYY-MM-DD');
+        console.log('📅 Date selected:', selectedDate);
         loadTimeSlots();
     }
 }
@@ -241,7 +246,16 @@ function selectTimeSlot(element, available) {
     // Calculate how many consecutive minutes are available from this slot
     availableConsecutiveMinutes = getConsecutiveAvailableMinutes(selectedTimeSlot.start_time);
 
-    console.log(`Selected slot: ${selectedTimeSlot.start_time}, Available duration: ${availableConsecutiveMinutes} minutes`);
+    console.log('⏰ ==================================================');
+    console.log('⏰ SELECTED TIME SLOT:', selectedTimeSlot.start_time);
+    console.log('⏰ CONSECUTIVE AVAILABLE TIME:', availableConsecutiveMinutes, 'minutes');
+    console.log('⏰ CAN BOOK SERVICES:');
+    if (availableConsecutiveMinutes >= 30) console.log('   ✅ 30-min service');
+    if (availableConsecutiveMinutes >= 60) console.log('   ✅ 60-min service');
+    if (availableConsecutiveMinutes >= 90) console.log('   ✅ 90-min service');
+    if (availableConsecutiveMinutes < 90) console.log('   ❌ 90-min service (need ' + (90 - availableConsecutiveMinutes) + ' more minutes)');
+    if (availableConsecutiveMinutes < 60) console.log('   ❌ 60-min service (need ' + (60 - availableConsecutiveMinutes) + ' more minutes)');
+    console.log('⏰ ==================================================');
 
     // Enable next button
     document.getElementById('btn-next-step1').disabled = false;
@@ -275,9 +289,15 @@ function loadRecommendedPackages(zone) {
     const availablePackages = packages.filter(pkg => pkg.durationMinutes <= availableConsecutiveMinutes);
     const unavailablePackages = packages.filter(pkg => pkg.durationMinutes > availableConsecutiveMinutes);
 
-    console.log(`Available time: ${availableConsecutiveMinutes} min`);
-    console.log(`Available packages:`, availablePackages.map(p => p.duration));
-    console.log(`Unavailable packages:`, unavailablePackages.map(p => p.duration));
+    console.log('📦 ==================================================');
+    console.log('📦 FILTERING PACKAGES FOR ZONE:', zone);
+    console.log('📦 AVAILABLE CONSECUTIVE TIME:', availableConsecutiveMinutes, 'minutes');
+    console.log('📦 Total packages for', zone + ':', packages.length);
+    console.log('📦 Available packages (' + availablePackages.length + '):');
+    availablePackages.forEach(p => console.log('   ✅', p.name, '-', p.duration, '(' + p.durationMinutes + ' min)'));
+    console.log('📦 Unavailable packages (' + unavailablePackages.length + '):');
+    unavailablePackages.forEach(p => console.log('   🔒', p.name, '-', p.duration, '(' + p.durationMinutes + ' min)'));
+    console.log('📦 ==================================================');
 
     if (availablePackages.length === 0) {
         list.innerHTML = `
@@ -427,7 +447,9 @@ function updateProgress(step) {
 // Update booking summary
 function updateBookingSummary() {
     const endTime = calculateEndTime(selectedTimeSlot.start_time, selectedPackage.durationMinutes);
-    document.getElementById('summary-date').textContent = moment(selectedDate).format('DD/MM/YYYY');
+    // Format date in Thai format (DD/MM/YYYY) with Thai day name
+    const thaiDate = moment(selectedDate).tz('Asia/Bangkok').format('DD/MM/YYYY (dddd)');
+    document.getElementById('summary-date').textContent = thaiDate;
     document.getElementById('summary-time').textContent = `${selectedTimeSlot.start_time} - ${endTime}`;
     document.getElementById('summary-service').textContent = selectedPackage.name;
 }
@@ -572,7 +594,7 @@ function displayMyBookings(bookings) {
                     <div class="col-md-8">
                         <h6 class="mb-1"><i class="bi bi-person"></i> ${escapeHtml(booking.walk_in_name)}</h6>
                         <p class="mb-1 text-muted">
-                            <i class="bi bi-calendar"></i> ${moment(booking.appointment_date).format('DD/MM/YYYY')}
+                            <i class="bi bi-calendar"></i> ${moment(booking.appointment_date).tz('Asia/Bangkok').format('DD/MM/YYYY (ddd)')}
                             <i class="bi bi-clock"></i> ${booking.start_time.substring(0, 5)} - ${booking.end_time.substring(0, 5)}<br>
                             <i class="bi bi-telephone"></i> ${escapeHtml(booking.walk_in_phone)}
                         </p>
