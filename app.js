@@ -8461,7 +8461,7 @@ app.get('/api/public/time-slots', async (req, res) => {
             return res.status(400).json({ error: 'clinic_id and date are required' });
         }
 
-        // Generate time slots (9:00 AM to 8:00 PM, 1-hour intervals)
+        // Generate time slots (8:00 AM to 8:00 PM, 30-minute intervals) - synced with appointments calendar
         const slots = [];
         const now = new Date();
         const todayDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -8469,26 +8469,34 @@ app.get('/api/public/time-slots', async (req, res) => {
         const currentMinute = now.getMinutes();
         const isToday = date === todayDate;
 
-        for (let hour = 9; hour < 20; hour++) {
-            const startTime = `${hour.toString().padStart(2, '0')}:00:00`;
-            const endTime = `${(hour + 1).toString().padStart(2, '0')}:00:00`;
+        // Start at 8:00 AM (08:00), end at 8:00 PM (20:00), 30-minute intervals
+        for (let hour = 8; hour < 20; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const startHour = hour;
+                const startMinute = minute;
+                const endMinute = minute + 30;
+                const endHour = endMinute >= 60 ? hour + 1 : hour;
+                const finalEndMinute = endMinute >= 60 ? 0 : endMinute;
 
-            // Skip past time slots if booking for today
-            if (isToday) {
-                // Skip if the slot has already passed
-                // A slot is considered past if current time is past the slot's end time
-                if (hour + 1 <= currentHour) {
-                    console.log(`Skipping past slot: ${startTime} - ${endTime} (current time: ${currentHour}:${currentMinute})`);
-                    continue;
+                // Don't create slot that goes past 20:00
+                if (endHour > 20 || (endHour === 20 && finalEndMinute > 0)) {
+                    break;
                 }
-                // Also skip if we're in the middle of a slot (e.g., it's 9:30, skip 9:00-10:00)
-                if (hour === currentHour && currentMinute > 0) {
-                    console.log(`Skipping current partial slot: ${startTime} - ${endTime} (current time: ${currentHour}:${currentMinute})`);
-                    continue;
+
+                const startTime = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}:00`;
+                const endTime = `${endHour.toString().padStart(2, '0')}:${finalEndMinute.toString().padStart(2, '0')}:00`;
+
+                // Skip past time slots if booking for today
+                if (isToday) {
+                    // Skip if the slot has already passed
+                    if (startHour < currentHour || (startHour === currentHour && startMinute <= currentMinute)) {
+                        console.log(`Skipping past slot: ${startTime} - ${endTime} (current time: ${currentHour}:${currentMinute})`);
+                        continue;
+                    }
                 }
+
+                slots.push({ start_time: startTime, end_time: endTime });
             }
-
-            slots.push({ start_time: startTime, end_time: endTime });
         }
 
         // Check which slots are already booked

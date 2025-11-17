@@ -234,11 +234,11 @@ function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
 
     calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek',
+        initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            right: window.innerWidth < 768 ? 'timeGridDay,listWeek' : 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
         slotMinTime: '08:00:00',
         slotMaxTime: '20:00:00',
@@ -250,6 +250,14 @@ function initializeCalendar() {
         selectable: !!canManageAppointments,
         selectMirror: !!canManageAppointments,
         dayMaxEvents: true,
+        // Mobile responsive settings
+        windowResize: function(view) {
+            if (window.innerWidth < 768) {
+                calendar.changeView('timeGridDay');
+            } else {
+                calendar.changeView('timeGridWeek');
+            }
+        },
 
         // Click on empty slot to create appointment
         select: function(info) {
