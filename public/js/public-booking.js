@@ -14,43 +14,44 @@ let bookingCalendarData = {}; // Stores booking counts per date
 // Package recommendations based on pain zones
 const packageRecommendations = {
     neck: [
-        { id: 'neck-basic', name: 'Neck Pain Relief - Basic', description: 'Manual therapy and exercise for neck pain', duration: '45 min', icon: '🦴' },
-        { id: 'neck-advanced', name: 'Neck Pain Relief - Advanced', description: 'Comprehensive treatment with manual therapy, ultrasound, and exercise', duration: '60 min', icon: '🦴' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'neck-quick', name: 'Neck Pain Relief - Quick', description: 'Basic manual therapy and exercise for neck pain', duration: '30 min', durationMinutes: 30, icon: '🦴' },
+        { id: 'neck-standard', name: 'Neck Pain Relief - Standard', description: 'Comprehensive treatment with manual therapy and exercise', duration: '60 min', durationMinutes: 60, icon: '🦴' },
+        { id: 'neck-intensive', name: 'Neck Pain Relief - Intensive', description: 'Extended treatment with manual therapy, ultrasound, and exercise', duration: '90 min', durationMinutes: 90, icon: '🦴' }
     ],
     shoulder: [
-        { id: 'shoulder-basic', name: 'Shoulder Rehabilitation - Basic', description: 'Manual therapy and strengthening exercises', duration: '45 min', icon: '💪' },
-        { id: 'shoulder-sports', name: 'Shoulder Sports Injury', description: 'Specialized treatment for sports-related shoulder injuries', duration: '60 min', icon: '💪' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'shoulder-quick', name: 'Shoulder Rehabilitation - Quick', description: 'Basic manual therapy and exercises', duration: '30 min', durationMinutes: 30, icon: '💪' },
+        { id: 'shoulder-standard', name: 'Shoulder Rehabilitation - Standard', description: 'Manual therapy and strengthening exercises', duration: '60 min', durationMinutes: 60, icon: '💪' },
+        { id: 'shoulder-intensive', name: 'Shoulder Sports Injury - Intensive', description: 'Specialized treatment for sports-related shoulder injuries', duration: '90 min', durationMinutes: 90, icon: '💪' }
     ],
     back: [
-        { id: 'back-basic', name: 'Back Pain Relief - Basic', description: 'Manual therapy and core strengthening', duration: '45 min', icon: '🔄' },
-        { id: 'back-advanced', name: 'Back Pain Relief - Advanced', description: 'Comprehensive treatment with electrotherapy and exercise', duration: '60 min', icon: '🔄' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'back-quick', name: 'Back Pain Relief - Quick', description: 'Basic manual therapy for back pain', duration: '30 min', durationMinutes: 30, icon: '🔄' },
+        { id: 'back-standard', name: 'Back Pain Relief - Standard', description: 'Manual therapy and core strengthening', duration: '60 min', durationMinutes: 60, icon: '🔄' },
+        { id: 'back-intensive', name: 'Back Pain Relief - Intensive', description: 'Comprehensive treatment with electrotherapy and exercise', duration: '90 min', durationMinutes: 90, icon: '🔄' }
     ],
     knee: [
-        { id: 'knee-basic', name: 'Knee Rehabilitation - Basic', description: 'Manual therapy and strengthening exercises', duration: '45 min', icon: '🦵' },
-        { id: 'knee-sports', name: 'Knee Sports Injury', description: 'Specialized treatment for sports-related knee injuries', duration: '60 min', icon: '🦵' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'knee-quick', name: 'Knee Rehabilitation - Quick', description: 'Basic manual therapy and exercises', duration: '30 min', durationMinutes: 30, icon: '🦵' },
+        { id: 'knee-standard', name: 'Knee Rehabilitation - Standard', description: 'Manual therapy and strengthening exercises', duration: '60 min', durationMinutes: 60, icon: '🦵' },
+        { id: 'knee-intensive', name: 'Knee Sports Injury - Intensive', description: 'Specialized treatment for sports-related knee injuries', duration: '90 min', durationMinutes: 90, icon: '🦵' }
     ],
     hip: [
-        { id: 'hip-basic', name: 'Hip Pain Relief', description: 'Manual therapy and mobility exercises', duration: '45 min', icon: '🦿' },
-        { id: 'hip-advanced', name: 'Hip Rehabilitation - Advanced', description: 'Comprehensive hip treatment and strengthening', duration: '60 min', icon: '🦿' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'hip-quick', name: 'Hip Pain Relief - Quick', description: 'Basic manual therapy and mobility exercises', duration: '30 min', durationMinutes: 30, icon: '🦿' },
+        { id: 'hip-standard', name: 'Hip Pain Relief - Standard', description: 'Manual therapy and mobility exercises', duration: '60 min', durationMinutes: 60, icon: '🦿' },
+        { id: 'hip-intensive', name: 'Hip Rehabilitation - Intensive', description: 'Comprehensive hip treatment and strengthening', duration: '90 min', durationMinutes: 90, icon: '🦿' }
     ],
     ankle: [
-        { id: 'ankle-basic', name: 'Ankle/Foot Rehabilitation', description: 'Manual therapy and stability exercises', duration: '45 min', icon: '🦶' },
-        { id: 'ankle-sports', name: 'Ankle Sports Injury', description: 'Specialized treatment for ankle sprains and injuries', duration: '60 min', icon: '🦶' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'ankle-quick', name: 'Ankle/Foot Rehabilitation - Quick', description: 'Basic manual therapy and stability exercises', duration: '30 min', durationMinutes: 30, icon: '🦶' },
+        { id: 'ankle-standard', name: 'Ankle/Foot Rehabilitation - Standard', description: 'Manual therapy and stability exercises', duration: '60 min', durationMinutes: 60, icon: '🦶' },
+        { id: 'ankle-intensive', name: 'Ankle Sports Injury - Intensive', description: 'Specialized treatment for ankle sprains and injuries', duration: '90 min', durationMinutes: 90, icon: '🦶' }
     ],
     elbow: [
-        { id: 'elbow-basic', name: 'Elbow Pain Relief', description: 'Manual therapy for tennis/golfer\'s elbow', duration: '45 min', icon: '💪' },
-        { id: 'elbow-advanced', name: 'Elbow Rehabilitation - Advanced', description: 'Comprehensive treatment with ultrasound and exercise', duration: '60 min', icon: '💪' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'elbow-quick', name: 'Elbow Pain Relief - Quick', description: 'Basic manual therapy for tennis/golfer\'s elbow', duration: '30 min', durationMinutes: 30, icon: '💪' },
+        { id: 'elbow-standard', name: 'Elbow Pain Relief - Standard', description: 'Manual therapy for tennis/golfer\'s elbow', duration: '60 min', durationMinutes: 60, icon: '💪' },
+        { id: 'elbow-intensive', name: 'Elbow Rehabilitation - Intensive', description: 'Comprehensive treatment with ultrasound and exercise', duration: '90 min', durationMinutes: 90, icon: '💪' }
     ],
     other: [
-        { id: 'general-physio', name: 'General Physiotherapy', description: 'General assessment and treatment', duration: '45 min', icon: '➕' },
-        { id: 'physical-exam', name: 'Physical Examination First', description: 'Let our therapist assess your condition first', duration: '30 min', icon: '🔍' }
+        { id: 'general-quick', name: 'General Physiotherapy - Quick', description: 'Quick assessment and treatment', duration: '30 min', durationMinutes: 30, icon: '➕' },
+        { id: 'general-standard', name: 'General Physiotherapy - Standard', description: 'General assessment and treatment', duration: '60 min', durationMinutes: 60, icon: '➕' },
+        { id: 'general-intensive', name: 'General Physiotherapy - Intensive', description: 'Extended assessment and comprehensive treatment', duration: '90 min', durationMinutes: 90, icon: '➕' }
     ]
 };
 
@@ -334,9 +335,26 @@ function updateProgress(step) {
 
 // Update booking summary
 function updateBookingSummary() {
+    const endTime = calculateEndTime(selectedTimeSlot.start_time, selectedPackage.durationMinutes);
     document.getElementById('summary-date').textContent = moment(selectedDate).format('DD/MM/YYYY');
-    document.getElementById('summary-time').textContent = `${selectedTimeSlot.start_time} - ${selectedTimeSlot.end_time}`;
+    document.getElementById('summary-time').textContent = `${selectedTimeSlot.start_time} - ${endTime}`;
     document.getElementById('summary-service').textContent = selectedPackage.name;
+}
+
+// Calculate end time based on start time and duration in minutes
+function calculateEndTime(startTime, durationMinutes) {
+    // Parse start time (format: "HH:MM:SS" or "HH:MM")
+    const [hours, minutes] = startTime.split(':').map(Number);
+
+    // Calculate total minutes
+    const totalMinutes = hours * 60 + minutes + durationMinutes;
+
+    // Calculate new hours and minutes
+    const endHours = Math.floor(totalMinutes / 60);
+    const endMinutes = totalMinutes % 60;
+
+    // Format as HH:MM:SS
+    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}:00`;
 }
 
 // Handle booking submission
@@ -368,13 +386,16 @@ async function handleBookingSubmit(e) {
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Booking...';
 
     try {
+        // Calculate end time based on package duration
+        const calculatedEndTime = calculateEndTime(selectedTimeSlot.start_time, selectedPackage.durationMinutes);
+
         const bookingData = {
             walk_in_name: name,
             walk_in_phone: phone,
             clinic_id: CLINIC_ID,
             appointment_date: selectedDate,
             start_time: selectedTimeSlot.start_time,
-            end_time: selectedTimeSlot.end_time,
+            end_time: calculatedEndTime,
             reason: reason || `${selectedPainZone} - ${selectedPackage.name}`,
             appointment_type: selectedPackage.id,
             booking_type: 'WALK_IN'
