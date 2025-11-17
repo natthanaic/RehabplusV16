@@ -7,6 +7,11 @@
     <link rel="icon" href="/public/images/Fav.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Design System -->
+    <link href="/public/css/variables.css" rel="stylesheet">
+    <link href="/public/css/base.css" rel="stylesheet">
+    <link href="/public/css/accessibility.css" rel="stylesheet">
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
     <style>
@@ -218,30 +223,89 @@
         .upcoming-card .list-group-item:hover {
             background-color: rgba(102, 126, 234, 0.08);
         }
+
+        /* Mobile Responsive Calendar */
+        @media (max-width: 767.98px) {
+            #calendar {
+                padding: 0.5rem;
+            }
+
+            .fc-toolbar {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .fc-toolbar-chunk {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .fc-toolbar-title {
+                font-size: 1.1rem !important;
+                margin-bottom: 0.5rem;
+            }
+
+            .fc-button {
+                font-size: 0.75rem !important;
+                padding: 0.25rem 0.5rem !important;
+            }
+
+            .fc-header-toolbar {
+                margin-bottom: 1rem !important;
+            }
+
+            /* Make time text smaller on mobile */
+            .fc-timegrid-slot-label {
+                font-size: 0.7rem !important;
+            }
+
+            .fc-timegrid-event {
+                font-size: 0.75rem !important;
+            }
+
+            /* Adjust calendar card on mobile */
+            .calendar-card {
+                margin-left: -0.5rem;
+                margin-right: -0.5rem;
+                border-radius: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Mobile navbar toggle -->
+    <nav class="navbar navbar-dark bg-dark d-md-none">
+        <div class="container-fluid">
+            <span class="navbar-brand">RehabPlus System</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
     <% const canManageAppointments = (user.role === 'ADMIN' || user.role === 'PT'); %>
     <div class="container-fluid">
         <div class="row">
             <%- include('partials/sidebar', { user, activePage: 'appointments' }) %>
 
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <main id="main-content" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4" role="main" aria-label="Appointments management">
                 <div class="page-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                     <div>
-                        <h1 class="h3 mb-2"><i class="bi bi-calendar-week me-2 text-primary"></i>Appointments</h1>
+                        <h1 class="h3 mb-2"><i class="bi bi-calendar-week me-2 text-primary" aria-hidden="true"></i>Appointments</h1>
                         <p class="mb-0">Centralised schedule management for physiotherapists and clinics.</p>
                     </div>
                     <% if (canManageAppointments) { %>
                         <button type="button" class="btn btn-primary" onclick="showBookingModal()">
-                            <i class="bi bi-plus-circle me-2"></i>New Appointment
+                            <i class="bi bi-plus-circle me-2" aria-hidden="true"></i>New Appointment
                         </button>
                     <% } %>
                 </div>
 
                 <% if (!canManageAppointments) { %>
                     <div class="alert alert-info d-flex align-items-center" role="alert">
-                        <i class="bi bi-eye me-2"></i>
+                        <i class="bi bi-eye me-2" aria-hidden="true"></i>
                         <div>Clinic accounts have read-only access. You can review appointments for patients linked to your clinic.</div>
                     </div>
                 <% } %>
@@ -251,28 +315,28 @@
                         <div class="stat-card bg-white">
                             <small class="text-uppercase d-block mb-2">Today</small>
                             <h3 id="todayCount">0</h3>
-                            <small><i class="bi bi-calendar-day me-1"></i>Appointments scheduled</small>
+                            <small><i class="bi bi-calendar-day me-1" aria-hidden="true"></i>Appointments scheduled</small>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card bg-white">
                             <small class="text-uppercase d-block mb-2">This week</small>
                             <h3 id="weekCount">0</h3>
-                            <small><i class="bi bi-calendar-week me-1"></i>Total active bookings</small>
+                            <small><i class="bi bi-calendar-week me-1" aria-hidden="true"></i>Total active bookings</small>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card bg-white">
                             <small class="text-uppercase d-block mb-2">This month</small>
                             <h3 id="monthCount">0</h3>
-                            <small><i class="bi bi-calendar-month me-1"></i>Sessions on the calendar</small>
+                            <small><i class="bi bi-calendar-month me-1" aria-hidden="true"></i>Sessions on the calendar</small>
                         </div>
                     </div>
                 </div>
 
                 <div class="card filters-card mb-4">
                     <div class="card-header">
-                        <i class="bi bi-funnel me-2 text-primary"></i>Filter appointments
+                        <i class="bi bi-funnel me-2 text-primary" aria-hidden="true"></i>Filter appointments
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -321,13 +385,13 @@
                     <div class="col-lg-4">
                         <div class="card upcoming-card h-100">
                             <div class="card-header d-flex align-items-center justify-content-between">
-                                <span><i class="bi bi-clock-history me-2 text-primary"></i>Upcoming appointments</span>
+                                <span><i class="bi bi-clock-history me-2 text-primary" aria-hidden="true"></i>Upcoming appointments</span>
                                 <span class="badge rounded-pill text-bg-light" id="upcomingCount">0</span>
                             </div>
                             <div class="card-body p-0">
                                 <ul class="list-group list-group-flush" id="upcomingAppointments"></ul>
                                 <div id="upcomingEmptyState" class="text-center text-muted py-4">
-                                    <i class="bi bi-calendar-x mb-2 d-block" style="font-size:1.75rem;"></i>
+                                    <i class="bi bi-calendar-x mb-2 d-block" aria-hidden="true" style="font-size:1.75rem;"></i>
                                     No upcoming appointments in the next two weeks.
                                 </div>
                             </div>
@@ -343,12 +407,12 @@
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-calendar-plus me-2"></i><span id="modalTitle">New appointment</span></h5>
+                    <h5 class="modal-title"><i class="bi bi-calendar-plus me-2" aria-hidden="true"></i><span id="modalTitle">New appointment</span></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="conflict-warning" id="conflictWarning">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
                         <span id="conflictMessage"></span>
                     </div>
 
@@ -356,30 +420,30 @@
                         <input type="hidden" id="selectedPatientId">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <h6 class="fw-semibold text-primary mb-3"><i class="bi bi-person-circle me-2"></i>Booking mode</h6>
+                                <h6 class="fw-semibold text-primary mb-3"><i class="bi bi-person-circle me-2" aria-hidden="true"></i>Booking mode</h6>
                                 <div class="mb-3">
                                     <div class="btn-group w-100" role="group" aria-label="Booking type selector">
                                         <input type="radio" class="btn-check" name="bookingType" id="bookingTypeOld" value="OLD_PATIENT" autocomplete="off" checked>
-                                        <label class="btn btn-outline-primary" for="bookingTypeOld"><i class="bi bi-person-vcard me-1"></i>Existing patient</label>
+                                        <label class="btn btn-outline-primary" for="bookingTypeOld"><i class="bi bi-person-vcard me-1" aria-hidden="true"></i>Existing patient</label>
                                         <input type="radio" class="btn-check" name="bookingType" id="bookingTypeWalkIn" value="WALK_IN" autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="bookingTypeWalkIn"><i class="bi bi-person-walking me-1"></i>Walk-in</label>
+                                        <label class="btn btn-outline-primary" for="bookingTypeWalkIn"><i class="bi bi-person-walking me-1" aria-hidden="true"></i>Walk-in</label>
                                     </div>
                                 </div>
 
                                 <div id="existingPatientSection">
                                     <label for="patientSearch" class="form-label">Search patient <span class="text-danger">*</span></label>
                                     <div class="input-group mb-2">
-                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
                                         <input type="text" class="form-control" id="patientSearch" placeholder="HN, PT number, or name" autocomplete="off">
                                         <button type="button" class="btn btn-primary" onclick="searchPatients()">Search</button>
                                     </div>
                                     <div id="patientSearchResults" class="border rounded-3 mb-2 p-2" style="display:none; max-height:240px; overflow-y:auto;"></div>
                                     <div id="selectedPatientInfo" class="alert alert-success mt-2" style="display:none;">
-                                        <i class="bi bi-check-circle me-2"></i>
+                                        <i class="bi bi-check-circle me-2" aria-hidden="true"></i>
                                         <strong>Selected:</strong> <span id="selectedPatientDisplay"></span>
                                     </div>
                                     <div id="linkedPNInfo" class="alert alert-info mt-2" style="display:none;">
-                                        <i class="bi bi-file-earmark-medical me-2"></i>
+                                        <i class="bi bi-file-earmark-medical me-2" aria-hidden="true"></i>
                                         <strong>Linked PN Case:</strong> <span id="linkedPNCodeDisplay"></span>
                                     </div>
                                 </div>
@@ -387,14 +451,14 @@
                                 <!-- Course Selection (only for OLD_PATIENT) -->
                                 <div class="mb-3" id="courseSection" style="display:none;">
                                     <label for="appointmentCourse" class="form-label">
-                                        <i class="bi bi-bookmark-star text-success me-1"></i>
+                                        <i class="bi bi-bookmark-star text-success me-1" aria-hidden="true"></i>
                                         Course Package (Optional)
                                     </label>
                                     <select id="appointmentCourse" class="form-select">
                                         <option value="">No course (Pay per session)</option>
                                     </select>
                                     <div class="form-text">
-                                        <i class="bi bi-info-circle me-1"></i>
+                                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
                                         If patient has an active course, selecting it will deduct 1 session automatically.
                                     </div>
                                 </div>
@@ -411,7 +475,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="autoCreatePN" checked>
                                         <label class="form-check-label fw-semibold" for="autoCreatePN">
-                                            <i class="bi bi-file-earmark-medical text-primary me-1"></i>
+                                            <i class="bi bi-file-earmark-medical text-primary me-1" aria-hidden="true"></i>
                                             Auto-create PN Case
                                             <small class="d-block text-muted">Automatically creates a pending PN case for this appointment</small>
                                         </label>
@@ -433,7 +497,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <h6 class="fw-semibold text-primary mb-3"><i class="bi bi-clock me-2"></i>Schedule</h6>
+                                <h6 class="fw-semibold text-primary mb-3"><i class="bi bi-clock me-2" aria-hidden="true"></i>Schedule</h6>
                                 <div class="mb-3">
                                     <label for="appointmentDate" class="form-label">Date <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control" id="appointmentDate" onchange="checkConflicts()" required>
@@ -462,7 +526,7 @@
 
                         <hr class="my-4">
 
-                        <h6 class="fw-semibold text-primary mb-3"><i class="bi bi-card-text me-2"></i>Details</h6>
+                        <h6 class="fw-semibold text-primary mb-3"><i class="bi bi-card-text me-2" aria-hidden="true"></i>Details</h6>
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label for="appointmentType" class="form-label">Appointment type</label>
@@ -488,10 +552,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-2"></i>Close
+                        <i class="bi bi-x-circle me-2" aria-hidden="true"></i>Close
                     </button>
                     <button type="button" class="btn btn-primary" onclick="saveAppointment()">
-                        <i class="bi bi-check-circle me-2"></i>Save appointment
+                        <i class="bi bi-check-circle me-2" aria-hidden="true"></i>Save appointment
                     </button>
                 </div>
             </div>
@@ -503,23 +567,23 @@
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Appointment details</h5>
+                    <h5 class="modal-title"><i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Appointment details</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="appointmentDetails"></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle me-2"></i>Close
+                        <i class="bi bi-x-circle me-2" aria-hidden="true"></i>Close
                     </button>
                     <% if (canManageAppointments) { %>
                         <button type="button" class="btn btn-warning" onclick="rescheduleAppointment()">
-                            <i class="bi bi-calendar2-event me-2"></i>Reschedule
+                            <i class="bi bi-calendar2-event me-2" aria-hidden="true"></i>Reschedule
                         </button>
                         <button type="button" class="btn btn-success" onclick="markAsCompleted()">
-                            <i class="bi bi-check2-circle me-2"></i>Mark completed
+                            <i class="bi bi-check2-circle me-2" aria-hidden="true"></i>Mark completed
                         </button>
                         <button type="button" class="btn btn-danger" onclick="cancelAppointment()">
-                            <i class="bi bi-x-octagon me-2"></i>Cancel
+                            <i class="bi bi-x-octagon me-2" aria-hidden="true"></i>Cancel
                         </button>
                     <% } %>
                 </div>

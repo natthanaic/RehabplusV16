@@ -1190,7 +1190,9 @@ app.get('/api/patients', authenticateToken, async (req, res) => {
         const pagination = validatePagination(req.query.page, req.query.limit);
 
         let query = `
-            SELECT p.*, c.name as clinic_name,
+            SELECT p.*,
+                   DATE_FORMAT(p.dob, '%Y-%m-%d') as dob,
+                   c.name as clinic_name,
                    CONCAT(u.first_name, ' ', u.last_name) as created_by_name
             FROM patients p
             JOIN clinics c ON p.clinic_id = c.id
@@ -5596,6 +5598,7 @@ app.get('/api/bills', authenticateToken, async (req, res) => {
         const { clinic_id, patient_id, status, date_from, date_to } = req.query;
 
         let query = `SELECT b.*,
+                     DATE_FORMAT(b.bill_date, '%Y-%m-%d') as bill_date,
                      CONCAT(COALESCE(p.first_name, b.walk_in_name), ' ', COALESCE(p.last_name, '')) as patient_name,
                      c.name as clinic_name
                      FROM bills b
@@ -5760,6 +5763,7 @@ app.get('/api/bills/:id', authenticateToken, async (req, res) => {
 
         const [bills] = await db.execute(
             `SELECT b.*,
+             DATE_FORMAT(b.bill_date, '%Y-%m-%d') as bill_date,
              CONCAT(COALESCE(p.first_name, b.walk_in_name), ' ', COALESCE(p.last_name, '')) as patient_name,
              c.name as clinic_name, c.address as clinic_address, c.phone as clinic_phone,
              pn.pn_code as pn_number, pn.purpose as pn_purpose, pn.status as pn_status
@@ -8461,7 +8465,7 @@ app.get('/api/public/time-slots', async (req, res) => {
             return res.status(400).json({ error: 'clinic_id and date are required' });
         }
 
-        // Generate time slots (9:00 AM to 8:00 PM, 1-hour intervals)
+        // Generate time slots (8:00 AM to 8:00 PM, 30-minute intervals) - synced with appointments calendar
         const slots = [];
         const now = new Date();
         const todayDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -8469,37 +8473,48 @@ app.get('/api/public/time-slots', async (req, res) => {
         const currentMinute = now.getMinutes();
         const isToday = date === todayDate;
 
-        for (let hour = 9; hour < 20; hour++) {
-            const startTime = `${hour.toString().padStart(2, '0')}:00:00`;
-            const endTime = `${(hour + 1).toString().padStart(2, '0')}:00:00`;
+        // Start at 8:00 AM (08:00), end at 8:00 PM (20:00), 30-minute intervals
+        for (let hour = 8; hour < 20; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const startHour = hour;
+                const startMinute = minute;
+                const endMinute = minute + 30;
+                const endHour = endMinute >= 60 ? hour + 1 : hour;
+                const finalEndMinute = endMinute >= 60 ? 0 : endMinute;
 
-            // Skip past time slots if booking for today
-            if (isToday) {
-                // Skip if the slot has already passed
-                // A slot is considered past if current time is past the slot's end time
-                if (hour + 1 <= currentHour) {
-                    console.log(`Skipping past slot: ${startTime} - ${endTime} (current time: ${currentHour}:${currentMinute})`);
-                    continue;
+                // Don't create slot that goes past 20:00
+                if (endHour > 20 || (endHour === 20 && finalEndMinute > 0)) {
+                    break;
                 }
-                // Also skip if we're in the middle of a slot (e.g., it's 9:30, skip 9:00-10:00)
-                if (hour === currentHour && currentMinute > 0) {
-                    console.log(`Skipping current partial slot: ${startTime} - ${endTime} (current time: ${currentHour}:${currentMinute})`);
-                    continue;
+
+                const startTime = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}:00`;
+                const endTime = `${endHour.toString().padStart(2, '0')}:${finalEndMinute.toString().padStart(2, '0')}:00`;
+
+                // Skip past time slots if booking for today
+                if (isToday) {
+                    // Skip if the slot has already passed
+                    if (startHour < currentHour || (startHour === currentHour && startMinute <= currentMinute)) {
+                        console.log(`Skipping past slot: ${startTime} - ${endTime} (current time: ${currentHour}:${currentMinute})`);
+                        continue;
+                    }
                 }
+
+                slots.push({ start_time: startTime, end_time: endTime });
             }
-
-            slots.push({ start_time: startTime, end_time: endTime });
         }
 
         // Check which slots are already booked
+        // Block time slots for appointments that actually happened or are scheduled to happen
+        // Only CANCELLED and NO_SHOW appointments free up the time slot
+        // COMPLETED appointments still block the slot because they already happened (PT was busy)
         const [bookedSlots] = await db.execute(`
-            SELECT a.start_time, a.end_time, a.id, a.walk_in_name,
+            SELECT a.start_time, a.end_time, a.id, a.walk_in_name, a.status,
                    CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name
             FROM appointments a
             LEFT JOIN patients p ON a.patient_id = p.id
             WHERE a.clinic_id = ?
             AND a.appointment_date = ?
-            AND a.status IN ('SCHEDULED', 'CONFIRMED', 'IN_PROGRESS')
+            AND a.status NOT IN ('CANCELLED', 'NO_SHOW')
         `, [clinic_id, date]);
 
         console.log(`\n========== TIME SLOTS DEBUG for ${date} ==========`);

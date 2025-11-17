@@ -73,6 +73,12 @@ function setupEventListeners() {
     // Pain zone cards
     document.querySelectorAll('.pain-zone-card').forEach(card => {
         card.addEventListener('click', () => selectPainZone(card));
+        card.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectPainZone(card);
+            }
+        });
     });
 
     // Form submission
@@ -180,8 +186,12 @@ async function loadTimeSlots() {
             grid.innerHTML = slots.map(slot => `
                 <div class="col-md-3 col-sm-4 col-6">
                     <div class="time-slot ${slot.available ? '' : 'disabled'}"
+                         role="${slot.available ? 'button' : ''}"
+                         tabindex="${slot.available ? '0' : '-1'}"
+                         aria-label="Time slot ${slot.start_time} to ${slot.end_time}${slot.available ? ', available' : ', booked'}"
                          data-slot='${JSON.stringify(slot)}'
-                         onclick="selectTimeSlot(this, ${slot.available})">
+                         onclick="selectTimeSlot(this, ${slot.available})"
+                         onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); selectTimeSlot(this, ${slot.available}); }">
                         <div><strong>${slot.start_time}</strong></div>
                         <div><small>${slot.end_time}</small></div>
                         ${slot.available ? '<small class="text-success">Available</small>' : '<small class="text-danger">Booked</small>'}
@@ -240,18 +250,24 @@ function loadRecommendedPackages(zone) {
 
     list.innerHTML = packages.map(pkg => `
         <div class="col-12">
-            <div class="package-card" data-package='${JSON.stringify(pkg)}' onclick="selectPackage(this)">
+            <div class="package-card"
+                 data-package='${JSON.stringify(pkg)}'
+                 role="button"
+                 tabindex="0"
+                 aria-label="Select ${pkg.name}"
+                 onclick="selectPackage(this)"
+                 onkeypress="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); selectPackage(this); }">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <div class="package-icon">${pkg.icon}</div>
+                        <div class="package-icon" aria-hidden="true">${pkg.icon}</div>
                     </div>
                     <div class="col">
                         <h5 class="mb-1">${pkg.name}</h5>
                         <p class="mb-1 text-muted">${pkg.description}</p>
-                        <small class="text-muted"><i class="bi bi-clock"></i> ${pkg.duration}</small>
+                        <small class="text-muted"><i class="bi bi-clock" aria-hidden="true"></i> ${pkg.duration}</small>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-check-circle" style="font-size: 1.5rem; display: none;"></i>
+                        <i class="bi bi-check-circle" aria-hidden="true" style="font-size: 1.5rem; display: none;"></i>
                     </div>
                 </div>
             </div>

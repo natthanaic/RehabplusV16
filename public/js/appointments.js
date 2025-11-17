@@ -234,11 +234,11 @@ function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
 
     calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek',
+        initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            right: window.innerWidth < 768 ? 'timeGridDay,listWeek' : 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
         },
         slotMinTime: '08:00:00',
         slotMaxTime: '20:00:00',
@@ -250,6 +250,14 @@ function initializeCalendar() {
         selectable: !!canManageAppointments,
         selectMirror: !!canManageAppointments,
         dayMaxEvents: true,
+        // Mobile responsive settings
+        windowResize: function(view) {
+            if (window.innerWidth < 768) {
+                calendar.changeView('timeGridDay');
+            } else {
+                calendar.changeView('timeGridWeek');
+            }
+        },
 
         // Click on empty slot to create appointment
         select: function(info) {
@@ -483,6 +491,11 @@ function showBookingModal() {
     if (linkedPNInfo) linkedPNInfo.style.display = 'none';
 
     const modal = new bootstrap.Modal(modalEl);
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(modalEl, document.activeElement);
+    }
     modal.show();
 }
 
@@ -897,6 +910,11 @@ async function viewAppointmentDetails(appointmentId) {
     document.getElementById('appointmentDetails').innerHTML = detailsHtml;
 
     const modal = new bootstrap.Modal(document.getElementById('viewAppointmentModal'));
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(document.getElementById("viewAppointmentModal"), document.activeElement);
+    }
     modal.show();
 }
 
@@ -1131,6 +1149,11 @@ function showPTAssessmentModal(appointmentId, courseWarning = '') {
 
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('ptAssessmentModal'));
+
+    // Add focus management for accessibility
+    if (window.A11y && window.A11y.manageFocusForModal) {
+        window.A11y.manageFocusForModal(document.getElementById("ptAssessmentModal"), document.activeElement);
+    }
     modal.show();
 }
 

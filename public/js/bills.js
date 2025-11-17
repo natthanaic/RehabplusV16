@@ -35,6 +35,40 @@ const BillsManager = {
         this.checkURLParameters();
     },
 
+    // Get today's date in YYYY-MM-DD format (local timezone, not UTC)
+    getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    },
+
+    // Format date to DD/MM/YYYY (Thai format)
+    formatDate(dateString) {
+        if (!dateString) return 'N/A';
+
+        try {
+            // Extract just the date part if it's an ISO string with time
+            // "2025-11-16T17:00:00.000Z" -> "2025-11-16"
+            let datePart = dateString;
+            if (dateString.includes('T')) {
+                datePart = dateString.split('T')[0];
+            }
+
+            // Parse as local date (YYYY-MM-DD format)
+            const [year, month, day] = datePart.split('-');
+
+            if (!year || !month || !day) return dateString;
+
+            // Return in DD/MM/YYYY format
+            return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+        } catch (error) {
+            console.error('Date formatting error:', error);
+            return dateString;
+        }
+    },
+
     // Set default date filters to show this week
     setDefaultDateFilters() {
         const today = new Date();
@@ -222,8 +256,16 @@ const BillsManager = {
                     params.append('clinic_id', userClinicId);
                 }
 
+                // Add cache-busting timestamp to ensure fresh data
+                if (forceReload) {
+                    params.append('_t', Date.now());
+                }
+
                 const response = await fetch(`/api/bills?${params}`, {
-                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Cache-Control': 'no-cache'
+                    }
                 });
 
                 if (!response.ok) throw new Error('Failed to load bills');
@@ -269,14 +311,20 @@ const BillsManager = {
                 return false;
             }
 
-            // Date from filter
-            if (dateFrom && bill.bill_date < dateFrom) {
-                return false;
+            // Date from filter - extract date part for comparison
+            if (dateFrom) {
+                const billDate = bill.bill_date ? bill.bill_date.split('T')[0] : '';
+                if (billDate < dateFrom) {
+                    return false;
+                }
             }
 
-            // Date to filter
-            if (dateTo && bill.bill_date > dateTo) {
-                return false;
+            // Date to filter - extract date part for comparison
+            if (dateTo) {
+                const billDate = bill.bill_date ? bill.bill_date.split('T')[0] : '';
+                if (billDate > dateTo) {
+                    return false;
+                }
             }
 
             return true;
@@ -296,6 +344,8 @@ const BillsManager = {
 
         // Sort bills by ID in descending order (newest first)
         const sortedBills = [...this.bills].sort((a, b) => b.id - a.id);
+
+        console.log('Rendering bills table. First bill date:', sortedBills[0]?.bill_date);
 
         tbody.innerHTML = sortedBills.map(bill => {
             // Role-based action buttons
@@ -353,7 +403,7 @@ const BillsManager = {
                     <td>${bill.bill_code}</td>
                     <td>${bill.patient_name || bill.walk_in_name || 'N/A'}</td>
                     <td>${bill.clinic_name}</td>
-                    <td>${bill.bill_date}</td>
+                    <td>${this.formatDate(bill.bill_date)}</td>
                     <td class="text-right">฿${parseFloat(bill.total_amount).toFixed(2)}</td>
                     <td>
                         <span class="badge badge-${this.getStatusBadgeClass(bill.payment_status)}">
@@ -386,7 +436,7 @@ const BillsManager = {
         document.getElementById('bill-patient-name').value = '';
         document.getElementById('bill-walk-in-name').value = '';
         document.getElementById('bill-walk-in-phone').value = '';
-        document.getElementById('bill-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('bill-date').value = this.getTodayDate();
         document.getElementById('bill-discount').value = '0';
         document.getElementById('bill-tax').value = '0';
         document.getElementById('bill-notes').value = '';
@@ -439,6 +489,11 @@ const BillsManager = {
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('createBillModal'));
         modal.show();
+
+        // Add focus management for accessibility
+        if (window.A11y && window.A11y.manageFocusForModal) {
+            window.A11y.manageFocusForModal(document.getElementById('createBillModal'), document.activeElement);
+        }
     },
 
     // NEW: Load patient AND PN information for bill creation
@@ -654,7 +709,7 @@ const BillsManager = {
             walk_in_name: walkInName || null,
             walk_in_phone: walkInPhone || null,
             clinic_id: parseInt(clinicIdValue),
-            bill_date: billDateValue || new Date().toISOString().split('T')[0],
+            bill_date: billDateValue || this.getTodayDate(),
             items: this.billItems,
             discount: parseFloat(document.getElementById('bill-discount')?.value) || 0,
             tax: parseFloat(document.getElementById('bill-tax')?.value) || 0,
@@ -728,7 +783,7 @@ const BillsManager = {
                 ` : ''}
                 <p><strong>Patient:</strong> ${bill.patient_name || bill.walk_in_name || 'N/A'}</p>
                 <p><strong>Clinic:</strong> ${bill.clinic_name || 'N/A'}</p>
-                <p><strong>Date:</strong> ${bill.bill_date || 'N/A'}</p>
+                <p><strong>Date:</strong> ${this.formatDate(bill.bill_date)}</p>
                 <p><strong>Status:</strong> <span class="badge badge-${this.getStatusBadgeClass(bill.payment_status)}">${bill.payment_status || 'UNPAID'}</span></p>
 
                 <h6>Items:</h6>
@@ -765,6 +820,11 @@ const BillsManager = {
         document.getElementById('bill-details-content').innerHTML = detailsHtml;
         const modal = new bootstrap.Modal(document.getElementById('viewBillModal'));
         modal.show();
+
+        // Add focus management for accessibility
+        if (window.A11y && window.A11y.manageFocusForModal) {
+            window.A11y.manageFocusForModal(document.getElementById('viewBillModal'), document.activeElement);
+        }
     },
 
     showAlert(message, type = 'info') {
@@ -859,7 +919,9 @@ const BillsManager = {
             }
 
             document.getElementById('bill-clinic').value = bill.clinic_id || '';
-            document.getElementById('bill-date').value = bill.bill_date || '';
+            // Extract date part (YYYY-MM-DD) from ISO timestamp for date input
+            const billDate = bill.bill_date ? bill.bill_date.split('T')[0] : '';
+            document.getElementById('bill-date').value = billDate;
             document.getElementById('bill-payment-method').value = bill.payment_method || '';
             document.getElementById('bill-notes').value = bill.bill_notes || '';
             document.getElementById('bill-discount').value = bill.discount || 0;
@@ -880,6 +942,11 @@ const BillsManager = {
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('createBillModal'));
             modal.show();
+
+            // Add focus management for accessibility
+            if (window.A11y && window.A11y.manageFocusForModal) {
+                window.A11y.manageFocusForModal(document.getElementById('createBillModal'), document.activeElement);
+            }
         } catch (error) {
             console.error('Edit bill error:', error);
             this.showAlert('Failed to load bill for editing: ' + error.message, 'danger');
@@ -907,12 +974,14 @@ const BillsManager = {
             return;
         }
 
+        const billDateValue = document.getElementById('bill-date')?.value || this.getTodayDate();
+
         const billData = {
             patient_id: patientId || null,
             walk_in_name: walkInName || null,
             walk_in_phone: walkInPhone || null,
             clinic_id: parseInt(clinicIdValue),
-            bill_date: document.getElementById('bill-date')?.value || new Date().toISOString().split('T')[0],
+            bill_date: billDateValue,
             items: this.billItems,
             discount: parseFloat(document.getElementById('bill-discount')?.value) || 0,
             tax: parseFloat(document.getElementById('bill-tax')?.value) || 0,
@@ -920,6 +989,9 @@ const BillsManager = {
             payment_method: document.getElementById('bill-payment-method')?.value || null,
             payment_status: this.currentBill.payment_status || 'UNPAID'
         };
+
+        console.log('Updating bill with date:', billDateValue);
+        console.log('Full bill data:', billData);
 
         try {
             const response = await fetch(`/api/bills/${billId}`, {
@@ -936,6 +1008,9 @@ const BillsManager = {
                 throw new Error(error.error || 'Failed to update bill');
             }
 
+            const result = await response.json();
+            console.log('Bill update response:', result);
+
             this.showAlert('Bill updated successfully!', 'success');
             const modalEl = document.getElementById('createBillModal');
             const modal = bootstrap.Modal.getInstance(modalEl);
@@ -946,7 +1021,9 @@ const BillsManager = {
             saveBtn.textContent = 'Save Bill';
             saveBtn.onclick = () => this.saveBill();
 
-            this.loadBills(true);
+            // Force reload bills from server with fresh data
+            await this.loadBills(true);
+            console.log('Bills reloaded after update. Total bills:', this.bills.length);
         } catch (error) {
             console.error('Update bill error:', error);
             this.showAlert(error.message, 'danger');
@@ -1058,6 +1135,11 @@ const BillsManager = {
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('createPNBillModal'));
             modal.show();
+
+            // Add focus management for accessibility
+            if (window.A11y && window.A11y.manageFocusForModal) {
+                window.A11y.manageFocusForModal(document.getElementById('createPNBillModal'), document.activeElement);
+            }
 
         } catch (error) {
             console.error('Load PN data error:', error);
@@ -1172,7 +1254,7 @@ const BillsManager = {
             walk_in_name: null,
             walk_in_phone: null,
             clinic_id: clinicId,
-            bill_date: new Date().toISOString().split('T')[0],
+            bill_date: this.getTodayDate(),
             items: this.pnBillItems,
             discount: 0,
             tax: 0,
