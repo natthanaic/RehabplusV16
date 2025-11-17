@@ -410,3 +410,43 @@ if (typeof window !== 'undefined') {
         isVisibleToScreenReaders
     };
 }
+
+/**
+ * Auto-close mobile sidebar when clicking a navigation link
+ */
+function initMobileSidebarAutoClose() {
+    // Only run on mobile devices
+    if (window.innerWidth < 768) {
+        const sidebar = document.getElementById('sidebarMenu');
+        const navLinks = sidebar ? sidebar.querySelectorAll('.nav-link') : [];
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Close the sidebar collapse
+                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                }
+            });
+        });
+    }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileSidebarAutoClose);
+} else {
+    initMobileSidebarAutoClose();
+}
+
+// Re-initialize on window resize
+let resizeTimer;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(initMobileSidebarAutoClose, 250);
+});
+
+// Export to A11y namespace
+if (window.A11y) {
+    window.A11y.initMobileSidebarAutoClose = initMobileSidebarAutoClose;
+}

@@ -450,3 +450,55 @@ a[target="_blank"] .sr-only::after {
         outline-color: var(--color-warning-light, #fbd38d);
     }
 }
+
+/* ========================================
+   MOBILE NAVIGATION
+   ======================================== */
+
+/**
+ * Mobile navbar toggle styles
+ */
+@media (max-width: 767.98px) {
+    /* Ensure sidebar takes full width on mobile when open */
+    #sidebarMenu {
+        position: fixed;
+        top: 56px; /* Height of mobile navbar */
+        left: 0;
+        width: 80%;
+        max-width: 300px;
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+        z-index: 1040;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Backdrop when sidebar is open */
+    #sidebarMenu.show::before {
+        content: '';
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+
+    /* Auto-close sidebar when clicking a link */
+    #sidebarMenu .nav-link {
+        cursor: pointer;
+    }
+
+    /* Adjust main content to not overlap with mobile navbar */
+    main {
+        padding-top: 1rem !important;
+    }
+}
+
+/* Mobile navbar styling */
+.navbar.d-md-none {
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
