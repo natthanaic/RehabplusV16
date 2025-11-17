@@ -35,6 +35,28 @@ const BillsManager = {
         this.checkURLParameters();
     },
 
+    // Format date to DD/MM/YYYY (Thai format)
+    formatDate(dateString) {
+        if (!dateString) return 'N/A';
+
+        try {
+            // Handle ISO date strings (e.g., "2025-11-16T17:00:00.000Z")
+            // or simple date strings (e.g., "2025-11-16")
+            const date = new Date(dateString);
+
+            if (isNaN(date.getTime())) return dateString; // Return original if invalid
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+
+            return `${day}/${month}/${year}`;
+        } catch (error) {
+            console.error('Date formatting error:', error);
+            return dateString;
+        }
+    },
+
     // Set default date filters to show this week
     setDefaultDateFilters() {
         const today = new Date();
@@ -269,14 +291,20 @@ const BillsManager = {
                 return false;
             }
 
-            // Date from filter
-            if (dateFrom && bill.bill_date < dateFrom) {
-                return false;
+            // Date from filter - extract date part for comparison
+            if (dateFrom) {
+                const billDate = bill.bill_date ? bill.bill_date.split('T')[0] : '';
+                if (billDate < dateFrom) {
+                    return false;
+                }
             }
 
-            // Date to filter
-            if (dateTo && bill.bill_date > dateTo) {
-                return false;
+            // Date to filter - extract date part for comparison
+            if (dateTo) {
+                const billDate = bill.bill_date ? bill.bill_date.split('T')[0] : '';
+                if (billDate > dateTo) {
+                    return false;
+                }
             }
 
             return true;
@@ -353,7 +381,7 @@ const BillsManager = {
                     <td>${bill.bill_code}</td>
                     <td>${bill.patient_name || bill.walk_in_name || 'N/A'}</td>
                     <td>${bill.clinic_name}</td>
-                    <td>${bill.bill_date}</td>
+                    <td>${this.formatDate(bill.bill_date)}</td>
                     <td class="text-right">฿${parseFloat(bill.total_amount).toFixed(2)}</td>
                     <td>
                         <span class="badge badge-${this.getStatusBadgeClass(bill.payment_status)}">
@@ -733,7 +761,7 @@ const BillsManager = {
                 ` : ''}
                 <p><strong>Patient:</strong> ${bill.patient_name || bill.walk_in_name || 'N/A'}</p>
                 <p><strong>Clinic:</strong> ${bill.clinic_name || 'N/A'}</p>
-                <p><strong>Date:</strong> ${bill.bill_date || 'N/A'}</p>
+                <p><strong>Date:</strong> ${this.formatDate(bill.bill_date)}</p>
                 <p><strong>Status:</strong> <span class="badge badge-${this.getStatusBadgeClass(bill.payment_status)}">${bill.payment_status || 'UNPAID'}</span></p>
 
                 <h6>Items:</h6>
