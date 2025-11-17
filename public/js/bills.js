@@ -438,13 +438,12 @@ const BillsManager = {
 
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('createBillModal'));
-
-    // Add focus management for accessibility
-    if (window.A11y && window.A11y.manageFocusForModal) {
-        const modalElement = modal._element || document.querySelector('.modal.show');
-        if (modalElement) window.A11y.manageFocusForModal(modalElement, document.activeElement);
-    }
         modal.show();
+
+        // Add focus management for accessibility
+        if (window.A11y && window.A11y.manageFocusForModal) {
+            window.A11y.manageFocusForModal(document.getElementById('createBillModal'), document.activeElement);
+        }
     },
 
     // NEW: Load patient AND PN information for bill creation
@@ -764,12 +763,6 @@ const BillsManager = {
                     <p><strong>Discount:</strong> ฿${parseFloat(bill.discount || 0).toFixed(2)}</p>
                     <p><strong>Tax:</strong> ฿${parseFloat(bill.tax || 0).toFixed(2)}</p>
                     <h5><strong>Total:</strong> ฿${parseFloat(bill.total_amount || 0).toFixed(2)}</h5>
-
-    // Add focus management for accessibility
-    if (window.A11y && window.A11y.manageFocusForModal) {
-        const modalElement = modal._element || document.querySelector('.modal.show');
-        if (modalElement) window.A11y.manageFocusForModal(modalElement, document.activeElement);
-    }
                 </div>
             </div>
         `;
@@ -777,6 +770,11 @@ const BillsManager = {
         document.getElementById('bill-details-content').innerHTML = detailsHtml;
         const modal = new bootstrap.Modal(document.getElementById('viewBillModal'));
         modal.show();
+
+        // Add focus management for accessibility
+        if (window.A11y && window.A11y.manageFocusForModal) {
+            window.A11y.manageFocusForModal(document.getElementById('viewBillModal'), document.activeElement);
+        }
     },
 
     showAlert(message, type = 'info') {
@@ -880,12 +878,6 @@ const BillsManager = {
             // Load services for this clinic
             await this.loadServices(bill.clinic_id);
 
-    // Add focus management for accessibility
-    if (window.A11y && window.A11y.manageFocusForModal) {
-        const modalElement = modal._element || document.querySelector('.modal.show');
-        if (modalElement) window.A11y.manageFocusForModal(modalElement, document.activeElement);
-    }
-
             // Render existing bill items
             this.renderBillItems();
             this.updateBillTotals();
@@ -898,6 +890,11 @@ const BillsManager = {
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('createBillModal'));
             modal.show();
+
+            // Add focus management for accessibility
+            if (window.A11y && window.A11y.manageFocusForModal) {
+                window.A11y.manageFocusForModal(document.getElementById('createBillModal'), document.activeElement);
+            }
         } catch (error) {
             console.error('Edit bill error:', error);
             this.showAlert('Failed to load bill for editing: ' + error.message, 'danger');
@@ -1057,12 +1054,6 @@ const BillsManager = {
                 const option = document.createElement('option');
                 option.value = service.id;
                 const displayPrice = service.price || service.default_price;
-
-    // Add focus management for accessibility
-    if (window.A11y && window.A11y.manageFocusForModal) {
-        const modalElement = modal._element || document.querySelector('.modal.show');
-        if (modalElement) window.A11y.manageFocusForModal(modalElement, document.activeElement);
-    }
                 option.textContent = `${service.service_code} - ${service.service_name} (฿${displayPrice})`;
                 option.dataset.price = displayPrice;
                 option.dataset.name = service.service_name;
@@ -1082,6 +1073,11 @@ const BillsManager = {
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('createPNBillModal'));
             modal.show();
+
+            // Add focus management for accessibility
+            if (window.A11y && window.A11y.manageFocusForModal) {
+                window.A11y.manageFocusForModal(document.getElementById('createPNBillModal'), document.activeElement);
+            }
 
         } catch (error) {
             console.error('Load PN data error:', error);
@@ -1224,12 +1220,6 @@ const BillsManager = {
 
             const result = await response.json();
             this.showAlert(`Bill ${result.bill_code} created successfully and linked to PN!`, 'success');
-
-    // Add focus management for accessibility
-    if (window.A11y && window.A11y.manageFocusForModal) {
-        const modalElement = modal._element || document.querySelector('.modal.show');
-        if (modalElement) window.A11y.manageFocusForModal(modalElement, document.activeElement);
-    }
 
             // Close modal
             const modalEl = document.getElementById('createPNBillModal');
