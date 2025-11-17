@@ -8411,7 +8411,7 @@ app.get('/api/public/booking-calendar', async (req, res) => {
             FROM appointments
             WHERE clinic_id = ?
             AND appointment_date BETWEEN ? AND ?
-            AND status IN ('SCHEDULED', 'CONFIRMED', 'IN_PROGRESS')
+            AND status != 'CANCELLED'
             GROUP BY appointment_date
             ORDER BY appointment_date
         `, [clinic_id, start_date, end_date]);
@@ -8499,7 +8499,7 @@ app.get('/api/public/time-slots', async (req, res) => {
             LEFT JOIN patients p ON a.patient_id = p.id
             WHERE a.clinic_id = ?
             AND a.appointment_date = ?
-            AND a.status IN ('SCHEDULED', 'CONFIRMED', 'IN_PROGRESS')
+            AND a.status != 'CANCELLED'
         `, [clinic_id, date]);
 
         console.log(`\n========== TIME SLOTS DEBUG for ${date} ==========`);
