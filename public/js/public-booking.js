@@ -10,6 +10,8 @@ let selectedTimeSlot = null;
 let selectedPainZone = null;
 let selectedPackage = null;
 let bookingCalendarData = {}; // Stores booking counts per date
+let allTimeSlots = []; // Store all time slots for availability checking
+let availableConsecutiveMinutes = 0; // Available time for selected slot
 
 // Package recommendations based on pain zones
 const packageRecommendations = {
@@ -172,6 +174,9 @@ async function loadTimeSlots() {
         if (response.ok) {
             const slots = await response.json();
 
+            // Store all slots for consecutive availability checking
+            allTimeSlots = slots;
+
             if (slots.length === 0) {
                 grid.innerHTML = '<div class="col-12"><div class="alert alert-info text-center">No available time slots for this date. Please select another date.</div></div>';
                 document.getElementById('btn-next-step1').disabled = true;
@@ -198,6 +203,28 @@ async function loadTimeSlots() {
     }
 }
 
+// Calculate consecutive available minutes starting from selected slot
+function getConsecutiveAvailableMinutes(startTime) {
+    // Find the index of the selected slot
+    const startIndex = allTimeSlots.findIndex(slot => slot.start_time === startTime);
+    if (startIndex === -1) return 30; // Default to 30 min if not found
+
+    let consecutiveMinutes = 0;
+
+    // Check consecutive slots starting from selected slot
+    for (let i = startIndex; i < allTimeSlots.length; i++) {
+        const slot = allTimeSlots[i];
+        if (slot.available) {
+            consecutiveMinutes += 30; // Each slot is 30 minutes
+        } else {
+            break; // Stop when we hit a booked slot
+        }
+    }
+
+    console.log(`Slot ${startTime}: ${consecutiveMinutes} consecutive minutes available`);
+    return consecutiveMinutes;
+}
+
 // Select time slot
 function selectTimeSlot(element, available) {
     if (!available) return;
@@ -210,6 +237,11 @@ function selectTimeSlot(element, available) {
     // Select this slot
     element.classList.add('selected');
     selectedTimeSlot = JSON.parse(element.dataset.slot);
+
+    // Calculate how many consecutive minutes are available from this slot
+    availableConsecutiveMinutes = getConsecutiveAvailableMinutes(selectedTimeSlot.start_time);
+
+    console.log(`Selected slot: ${selectedTimeSlot.start_time}, Available duration: ${availableConsecutiveMinutes} minutes`);
 
     // Enable next button
     document.getElementById('btn-next-step1').disabled = false;
@@ -239,25 +271,73 @@ function loadRecommendedPackages(zone) {
 
     const packages = packageRecommendations[zone] || packageRecommendations['other'];
 
-    list.innerHTML = packages.map(pkg => `
-        <div class="col-12">
-            <div class="package-card" data-package='${JSON.stringify(pkg)}' onclick="selectPackage(this)">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <div class="package-icon">${pkg.icon}</div>
-                    </div>
-                    <div class="col">
-                        <h5 class="mb-1">${pkg.name}</h5>
-                        <p class="mb-1 text-muted">${pkg.description}</p>
-                        <small class="text-muted"><i class="bi bi-clock"></i> ${pkg.duration}</small>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-check-circle" style="font-size: 1.5rem; display: none;"></i>
+    // Filter packages based on available consecutive time
+    const availablePackages = packages.filter(pkg => pkg.durationMinutes <= availableConsecutiveMinutes);
+    const unavailablePackages = packages.filter(pkg => pkg.durationMinutes > availableConsecutiveMinutes);
+
+    console.log(`Available time: ${availableConsecutiveMinutes} min`);
+    console.log(`Available packages:`, availablePackages.map(p => p.duration));
+    console.log(`Unavailable packages:`, unavailablePackages.map(p => p.duration));
+
+    if (availablePackages.length === 0) {
+        list.innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    No services available for the selected time slot.
+                    The next time slots are already booked.
+                    Please select a different time slot.
+                </div>
+            </div>
+        `;
+        container.style.display = 'block';
+        return;
+    }
+
+    list.innerHTML = [
+        // Available packages
+        ...availablePackages.map(pkg => `
+            <div class="col-12">
+                <div class="package-card" data-package='${JSON.stringify(pkg)}' onclick="selectPackage(this)">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="package-icon">${pkg.icon}</div>
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1">${pkg.name}</h5>
+                            <p class="mb-1 text-muted">${pkg.description}</p>
+                            <small class="text-muted"><i class="bi bi-clock"></i> ${pkg.duration}</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-check-circle" style="font-size: 1.5rem; display: none;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `),
+        // Unavailable packages (disabled - no onclick)
+        ...unavailablePackages.map(pkg => `
+            <div class="col-12">
+                <div class="package-card package-disabled" style="opacity: 0.5; cursor: not-allowed; background-color: #f5f5f5; pointer-events: none;" title="Next time slots are already booked">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="package-icon">${pkg.icon}</div>
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1">${pkg.name}</h5>
+                            <p class="mb-1 text-muted">${pkg.description}</p>
+                            <small class="text-muted"><i class="bi bi-clock"></i> ${pkg.duration}</small>
+                            <br>
+                            <small class="text-danger"><i class="bi bi-x-circle"></i> Not enough time - next slots booked</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-lock-fill text-muted" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `)
+    ].join('');
 
     container.style.display = 'block';
 
@@ -269,16 +349,27 @@ function loadRecommendedPackages(zone) {
 
 // Select package
 function selectPackage(card) {
+    const pkg = JSON.parse(card.dataset.package);
+
+    // Validate package duration fits in available time
+    if (pkg.durationMinutes > availableConsecutiveMinutes) {
+        showAlert(`Cannot select ${pkg.duration} service. Only ${availableConsecutiveMinutes} minutes available. Next time slots are booked.`, 'warning');
+        return;
+    }
+
     // Remove previous selection
     document.querySelectorAll('.package-card').forEach(c => {
         c.classList.remove('selected');
-        c.querySelector('.bi-check-circle').style.display = 'none';
+        const checkIcon = c.querySelector('.bi-check-circle');
+        if (checkIcon) checkIcon.style.display = 'none';
     });
 
     // Select this package
     card.classList.add('selected');
     card.querySelector('.bi-check-circle').style.display = 'block';
-    selectedPackage = JSON.parse(card.dataset.package);
+    selectedPackage = pkg;
+
+    console.log(`Selected package: ${pkg.name} (${pkg.durationMinutes} min)`);
 
     // Enable next button
     document.getElementById('btn-next-step2').disabled = false;
@@ -378,6 +469,12 @@ async function handleBookingSubmit(e) {
 
     if (!selectedPackage) {
         showAlert('Please select a service', 'warning');
+        return;
+    }
+
+    // Final validation: ensure package duration fits in available time
+    if (selectedPackage.durationMinutes > availableConsecutiveMinutes) {
+        showAlert(`Cannot book ${selectedPackage.duration} service. Only ${availableConsecutiveMinutes} minutes available. Next time slots are booked. Please select a different time slot.`, 'danger');
         return;
     }
 
