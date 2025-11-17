@@ -1190,7 +1190,9 @@ app.get('/api/patients', authenticateToken, async (req, res) => {
         const pagination = validatePagination(req.query.page, req.query.limit);
 
         let query = `
-            SELECT p.*, c.name as clinic_name,
+            SELECT p.*,
+                   DATE_FORMAT(p.dob, '%Y-%m-%d') as dob,
+                   c.name as clinic_name,
                    CONCAT(u.first_name, ' ', u.last_name) as created_by_name
             FROM patients p
             JOIN clinics c ON p.clinic_id = c.id
@@ -8502,14 +8504,17 @@ app.get('/api/public/time-slots', async (req, res) => {
         }
 
         // Check which slots are already booked
+        // Only count appointments that are SCHEDULED, CONFIRMED, or IN_PROGRESS
+        // COMPLETED, CANCELLED, NO_SHOW, and other statuses should FREE UP the time slot
         const [bookedSlots] = await db.execute(`
-            SELECT a.start_time, a.end_time, a.id, a.walk_in_name,
+            SELECT a.start_time, a.end_time, a.id, a.walk_in_name, a.status,
                    CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name
             FROM appointments a
             LEFT JOIN patients p ON a.patient_id = p.id
             WHERE a.clinic_id = ?
             AND a.appointment_date = ?
             AND a.status IN ('SCHEDULED', 'CONFIRMED', 'IN_PROGRESS')
+            AND a.status NOT IN ('COMPLETED', 'CANCELLED', 'NO_SHOW')
         `, [clinic_id, date]);
 
         console.log(`\n========== TIME SLOTS DEBUG for ${date} ==========`);
