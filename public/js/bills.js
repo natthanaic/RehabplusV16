@@ -256,8 +256,16 @@ const BillsManager = {
                     params.append('clinic_id', userClinicId);
                 }
 
+                // Add cache-busting timestamp to ensure fresh data
+                if (forceReload) {
+                    params.append('_t', Date.now());
+                }
+
                 const response = await fetch(`/api/bills?${params}`, {
-                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Cache-Control': 'no-cache'
+                    }
                 });
 
                 if (!response.ok) throw new Error('Failed to load bills');
@@ -336,6 +344,8 @@ const BillsManager = {
 
         // Sort bills by ID in descending order (newest first)
         const sortedBills = [...this.bills].sort((a, b) => b.id - a.id);
+
+        console.log('Rendering bills table. First bill date:', sortedBills[0]?.bill_date);
 
         tbody.innerHTML = sortedBills.map(bill => {
             // Role-based action buttons
@@ -964,12 +974,14 @@ const BillsManager = {
             return;
         }
 
+        const billDateValue = document.getElementById('bill-date')?.value || this.getTodayDate();
+
         const billData = {
             patient_id: patientId || null,
             walk_in_name: walkInName || null,
             walk_in_phone: walkInPhone || null,
             clinic_id: parseInt(clinicIdValue),
-            bill_date: document.getElementById('bill-date')?.value || this.getTodayDate(),
+            bill_date: billDateValue,
             items: this.billItems,
             discount: parseFloat(document.getElementById('bill-discount')?.value) || 0,
             tax: parseFloat(document.getElementById('bill-tax')?.value) || 0,
@@ -977,6 +989,9 @@ const BillsManager = {
             payment_method: document.getElementById('bill-payment-method')?.value || null,
             payment_status: this.currentBill.payment_status || 'UNPAID'
         };
+
+        console.log('Updating bill with date:', billDateValue);
+        console.log('Full bill data:', billData);
 
         try {
             const response = await fetch(`/api/bills/${billId}`, {
@@ -993,6 +1008,9 @@ const BillsManager = {
                 throw new Error(error.error || 'Failed to update bill');
             }
 
+            const result = await response.json();
+            console.log('Bill update response:', result);
+
             this.showAlert('Bill updated successfully!', 'success');
             const modalEl = document.getElementById('createBillModal');
             const modal = bootstrap.Modal.getInstance(modalEl);
@@ -1003,7 +1021,9 @@ const BillsManager = {
             saveBtn.textContent = 'Save Bill';
             saveBtn.onclick = () => this.saveBill();
 
-            this.loadBills(true);
+            // Force reload bills from server with fresh data
+            await this.loadBills(true);
+            console.log('Bills reloaded after update. Total bills:', this.bills.length);
         } catch (error) {
             console.error('Update bill error:', error);
             this.showAlert(error.message, 'danger');
