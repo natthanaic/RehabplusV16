@@ -35,22 +35,34 @@ const BillsManager = {
         this.checkURLParameters();
     },
 
+    // Get today's date in YYYY-MM-DD format (local timezone, not UTC)
+    getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    },
+
     // Format date to DD/MM/YYYY (Thai format)
     formatDate(dateString) {
         if (!dateString) return 'N/A';
 
         try {
-            // Handle ISO date strings (e.g., "2025-11-16T17:00:00.000Z")
-            // or simple date strings (e.g., "2025-11-16")
-            const date = new Date(dateString);
+            // Extract just the date part if it's an ISO string with time
+            // "2025-11-16T17:00:00.000Z" -> "2025-11-16"
+            let datePart = dateString;
+            if (dateString.includes('T')) {
+                datePart = dateString.split('T')[0];
+            }
 
-            if (isNaN(date.getTime())) return dateString; // Return original if invalid
+            // Parse as local date (YYYY-MM-DD format)
+            const [year, month, day] = datePart.split('-');
 
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
+            if (!year || !month || !day) return dateString;
 
-            return `${day}/${month}/${year}`;
+            // Return in DD/MM/YYYY format
+            return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
         } catch (error) {
             console.error('Date formatting error:', error);
             return dateString;
@@ -414,7 +426,7 @@ const BillsManager = {
         document.getElementById('bill-patient-name').value = '';
         document.getElementById('bill-walk-in-name').value = '';
         document.getElementById('bill-walk-in-phone').value = '';
-        document.getElementById('bill-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('bill-date').value = this.getTodayDate();
         document.getElementById('bill-discount').value = '0';
         document.getElementById('bill-tax').value = '0';
         document.getElementById('bill-notes').value = '';
@@ -687,7 +699,7 @@ const BillsManager = {
             walk_in_name: walkInName || null,
             walk_in_phone: walkInPhone || null,
             clinic_id: parseInt(clinicIdValue),
-            bill_date: billDateValue || new Date().toISOString().split('T')[0],
+            bill_date: billDateValue || this.getTodayDate(),
             items: this.billItems,
             discount: parseFloat(document.getElementById('bill-discount')?.value) || 0,
             tax: parseFloat(document.getElementById('bill-tax')?.value) || 0,
@@ -897,7 +909,9 @@ const BillsManager = {
             }
 
             document.getElementById('bill-clinic').value = bill.clinic_id || '';
-            document.getElementById('bill-date').value = bill.bill_date || '';
+            // Extract date part (YYYY-MM-DD) from ISO timestamp for date input
+            const billDate = bill.bill_date ? bill.bill_date.split('T')[0] : '';
+            document.getElementById('bill-date').value = billDate;
             document.getElementById('bill-payment-method').value = bill.payment_method || '';
             document.getElementById('bill-notes').value = bill.bill_notes || '';
             document.getElementById('bill-discount').value = bill.discount || 0;
@@ -955,7 +969,7 @@ const BillsManager = {
             walk_in_name: walkInName || null,
             walk_in_phone: walkInPhone || null,
             clinic_id: parseInt(clinicIdValue),
-            bill_date: document.getElementById('bill-date')?.value || new Date().toISOString().split('T')[0],
+            bill_date: document.getElementById('bill-date')?.value || this.getTodayDate(),
             items: this.billItems,
             discount: parseFloat(document.getElementById('bill-discount')?.value) || 0,
             tax: parseFloat(document.getElementById('bill-tax')?.value) || 0,
@@ -1220,7 +1234,7 @@ const BillsManager = {
             walk_in_name: null,
             walk_in_phone: null,
             clinic_id: clinicId,
-            bill_date: new Date().toISOString().split('T')[0],
+            bill_date: this.getTodayDate(),
             items: this.pnBillItems,
             discount: 0,
             tax: 0,
