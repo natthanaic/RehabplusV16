@@ -8504,8 +8504,9 @@ app.get('/api/public/time-slots', async (req, res) => {
         }
 
         // Check which slots are already booked
-        // Only count appointments that are SCHEDULED, CONFIRMED, or IN_PROGRESS
-        // COMPLETED, CANCELLED, NO_SHOW, and other statuses should FREE UP the time slot
+        // Block time slots for appointments that actually happened or are scheduled to happen
+        // Only CANCELLED and NO_SHOW appointments free up the time slot
+        // COMPLETED appointments still block the slot because they already happened (PT was busy)
         const [bookedSlots] = await db.execute(`
             SELECT a.start_time, a.end_time, a.id, a.walk_in_name, a.status,
                    CONCAT(COALESCE(p.first_name, ''), ' ', COALESCE(p.last_name, '')) as patient_name
@@ -8513,8 +8514,7 @@ app.get('/api/public/time-slots', async (req, res) => {
             LEFT JOIN patients p ON a.patient_id = p.id
             WHERE a.clinic_id = ?
             AND a.appointment_date = ?
-            AND a.status IN ('SCHEDULED', 'CONFIRMED', 'IN_PROGRESS')
-            AND a.status NOT IN ('COMPLETED', 'CANCELLED', 'NO_SHOW')
+            AND a.status NOT IN ('CANCELLED', 'NO_SHOW')
         `, [clinic_id, date]);
 
         console.log(`\n========== TIME SLOTS DEBUG for ${date} ==========`);
