@@ -5596,6 +5596,7 @@ app.get('/api/bills', authenticateToken, async (req, res) => {
         const { clinic_id, patient_id, status, date_from, date_to } = req.query;
 
         let query = `SELECT b.*,
+                     DATE_FORMAT(b.bill_date, '%Y-%m-%d') as bill_date,
                      CONCAT(COALESCE(p.first_name, b.walk_in_name), ' ', COALESCE(p.last_name, '')) as patient_name,
                      c.name as clinic_name
                      FROM bills b
@@ -5760,6 +5761,7 @@ app.get('/api/bills/:id', authenticateToken, async (req, res) => {
 
         const [bills] = await db.execute(
             `SELECT b.*,
+             DATE_FORMAT(b.bill_date, '%Y-%m-%d') as bill_date,
              CONCAT(COALESCE(p.first_name, b.walk_in_name), ' ', COALESCE(p.last_name, '')) as patient_name,
              c.name as clinic_name, c.address as clinic_address, c.phone as clinic_phone,
              pn.pn_code as pn_number, pn.purpose as pn_purpose, pn.status as pn_status
